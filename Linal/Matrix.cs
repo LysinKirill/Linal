@@ -63,28 +63,28 @@ public class Matrix
         return copy;
     }
 
-    public static Matrix Parse(string s)
-    {
-        string[] lines = s.Split("\n");
-        int m = lines.Length;
-        int n = lines[0].Split(" ").Length;
-        Matrix a = new Matrix();
-        a._data = new Fraction[m, n];
-        a.Rows = m;
-        a.Columns = n;
-        for (int i = 0; i < m; i++)
-        {
-            string[] arr = lines[i].Split(" ");
-            for (int j = 0; j < n; j++)
-            {
-                a._data[i, j] = Fraction.Parse(arr[j]);
-            }
-        }
-
-        a._maxS = a.GetMaxLength();
-
-        return a;
-    }
+    // public static Matrix Parse(string s)
+    // {
+    //     string[] lines = s.Split("\n");
+    //     int m = lines.Length;
+    //     int n = lines[0].Split(" ").Length;
+    //     Matrix a = new Matrix();
+    //     a._data = new Fraction[m, n];
+    //     a.Rows = m;
+    //     a.Columns = n;
+    //     for (int i = 0; i < m; i++)
+    //     {
+    //         string[] arr = lines[i].Split(" ");
+    //         for (int j = 0; j < n; j++)
+    //         {
+    //             a._data[i, j] = Fraction.Parse(arr[j]);
+    //         }
+    //     }
+    //
+    //     a._maxS = a.GetMaxLength();
+    //
+    //     return a;
+    // }
 
     public void Read(int m, int n)
     {
@@ -102,7 +102,15 @@ public class Matrix
         _maxS = GetMaxLength();
         Console.WriteLine();
     }
-    
+
+    public static Matrix ReadVector()
+    {
+        var m = new Matrix();
+        List<List<Fraction>> rows = new();
+        rows.Add(Array.ConvertAll(Console.ReadLine().Split(), Fraction.Parse).ToList());
+        return Transpose(new Matrix(rows));
+    }
+
     public static Matrix ConcatColumns(Matrix a, Matrix b)
     {
         Matrix newMatrix = new Matrix();

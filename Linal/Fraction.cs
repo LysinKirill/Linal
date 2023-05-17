@@ -161,7 +161,7 @@ public class Fraction
             return new Fraction(num, 1, root);
         }
 
-        num = long.Parse(s);
+        num *= long.Parse(s);
         return new Fraction(num);
     }
 
