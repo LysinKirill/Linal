@@ -1,27 +1,26 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Kirill\\RiderProjects\\Linal\\Linal\\Linal.csproj": {}
+    "/Users/maksimivanov/RiderProjects/Linal/Linal/Linal.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Kirill\\RiderProjects\\Linal\\Linal\\Linal.csproj": {
+    "/Users/maksimivanov/RiderProjects/Linal/Linal/Linal.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Kirill\\RiderProjects\\Linal\\Linal\\Linal.csproj",
+        "projectUniqueName": "/Users/maksimivanov/RiderProjects/Linal/Linal/Linal.csproj",
         "projectName": "Linal",
-        "projectPath": "C:\\Users\\Kirill\\RiderProjects\\Linal\\Linal\\Linal.csproj",
-        "packagesPath": "C:\\Users\\Kirill\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Kirill\\RiderProjects\\Linal\\Linal\\obj\\",
+        "projectPath": "/Users/maksimivanov/RiderProjects/Linal/Linal/Linal.csproj",
+        "packagesPath": "/Users/maksimivanov/.nuget/packages/",
+        "outputPath": "/Users/maksimivanov/RiderProjects/Linal/Linal/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Kirill\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/maksimivanov/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "/usr/local/share/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -45,7 +44,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -54,7 +54,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.311\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.100/RuntimeIdentifierGraph.json"
         }
       }
     }

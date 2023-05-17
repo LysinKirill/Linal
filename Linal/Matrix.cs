@@ -5,7 +5,7 @@ namespace Linal;
 
 public class Matrix
 {
-    Fraction[,] data;
+    Fraction[,] _data;
     public int Rows { get; private set; }
     public int Columns { get; private set; }
 
@@ -15,7 +15,7 @@ public class Matrix
     {
         Rows = f.GetLength(0);
         Columns = f.GetLength(1);
-        data = f;
+        _data = f;
         _maxS = GetMaxLength();
     }
 
@@ -23,7 +23,7 @@ public class Matrix
     {
         Rows = 0;
         Columns = 0;
-        data = null;
+        _data = null;
     }
 
     public Matrix(int rows, int columns)
@@ -32,7 +32,7 @@ public class Matrix
             throw new ArgumentException("Rows and columns of matrix have to be positive integers");
         Rows = rows;
         Columns = columns;
-        data = new Fraction[rows, columns];
+        _data = new Fraction[rows, columns];
     }
 
     public static Matrix Copy(Matrix matrix)
@@ -40,11 +40,11 @@ public class Matrix
         Matrix copy = new Matrix();
         copy.Rows = matrix.Rows;
         copy.Columns = matrix.Columns;
-        copy.data = new Fraction[copy.Rows, copy.Columns];
+        copy._data = new Fraction[copy.Rows, copy.Columns];
 
         for (int i = 0; i < copy.Rows; ++i)
         for (int j = 0; j < copy.Columns; ++j)
-            copy.data[i, j] = new Fraction(matrix.data[i, j]);
+            copy._data[i, j] = new Fraction(matrix._data[i, j]);
 
         return copy;
     }
@@ -55,7 +55,7 @@ public class Matrix
         int m = lines.Length;
         int n = lines[0].Split(" ").Length;
         Matrix a = new Matrix();
-        a.data = new Fraction[m, n];
+        a._data = new Fraction[m, n];
         a.Rows = m;
         a.Columns = n;
         for (int i = 0; i < m; i++)
@@ -63,7 +63,7 @@ public class Matrix
             string[] arr = lines[i].Split(" ");
             for (int j = 0; j < n; j++)
             {
-                a.data[i, j] = Fraction.Parse(arr[j]);
+                a._data[i, j] = Fraction.Parse(arr[j]);
             }
         }
 
@@ -75,14 +75,14 @@ public class Matrix
     public void Read(int m, int n)
     {
         (int, int) size = (m, n);
-        data = new Fraction[size.Item1, size.Item2];
+        _data = new Fraction[size.Item1, size.Item2];
         (m, n) = size;
         string[] s;
         for (int i = 0; i < size.Item1; i++)
         {
             s = Console.ReadLine().Split(" ");
             for (int j = 0; j < size.Item2; j++)
-                data[i, j] = Fraction.Parse(s[j]);
+                _data[i, j] = Fraction.Parse(s[j]);
         }
 
         _maxS = GetMaxLength();
@@ -93,13 +93,13 @@ public class Matrix
     {
         String[] s = Console.ReadLine().Split(" ");
         (int, int) size = (int.Parse(s[0]), int.Parse(s[1]));
-        data = new Fraction[size.Item1, size.Item2];
+        _data = new Fraction[size.Item1, size.Item2];
         (Rows, Columns) = size;
         for (int i = 0; i < size.Item1; i++)
         {
             s = Console.ReadLine().Split(" ");
             for (int j = 0; j < size.Item2; j++)
-                data[i, j] = Fraction.Parse(s[j]);
+                _data[i, j] = Fraction.Parse(s[j]);
         }
 
         _maxS = GetMaxLength();
@@ -116,8 +116,8 @@ public class Matrix
         int max = -1;
         for (int i = 0; i < Rows; i++)
         for (int j = 0; j < Columns; j++)
-            if (data[i, j].GetLenS() > max)
-                max = data[i, j].GetLenS();
+            if (_data[i, j].GetLenS() > max)
+                max = _data[i, j].GetLenS();
         return max;
     }
 
@@ -125,10 +125,10 @@ public class Matrix
     {
         Matrix tr = new Matrix();
         (tr.Rows, tr.Columns) = (p.Columns, p.Rows);
-        tr.data = new Fraction[tr.Rows, tr.Columns];
+        tr._data = new Fraction[tr.Rows, tr.Columns];
         for (int i = 0; i < tr.Rows; i++)
         for (int j = 0; j < tr.Columns; j++)
-            tr.data[i, j] = p.data[j, i];
+            tr._data[i, j] = p._data[j, i];
         return tr;
     }
 
@@ -158,14 +158,14 @@ public class Matrix
     {
         for (int i = 0; i < Rows; ++i)
         for (int j = 0; j < Columns; ++j)
-            data[i, j] = func(data[i, j]);
+            _data[i, j] = func(_data[i, j]);
     }
 
     public void ApplyRows(Func<Fraction, Fraction> func, params int[] rows)
     {
         foreach(int i in rows)
             for (int j = 0; j < Columns; ++j)
-                data[i, j] = func(data[i, j]);
+                _data[i, j] = func(_data[i, j]);
     }
 
     public void ApplyRow(Func<Fraction, Fraction> func, int row) => ApplyRows(func, row);
@@ -174,7 +174,7 @@ public class Matrix
     {
         for(int i = 0; i < Rows; ++i)
             foreach(int j in columns)
-                data[i, j] = func(data[i, j]);
+                _data[i, j] = func(_data[i, j]);
     }
 
     public void ApplyColumn(Func<Fraction, Fraction> func, int column) => ApplyRows(func, column);
@@ -323,7 +323,7 @@ public class Matrix
                 int x = l;
                 if (l >= j)
                     x -= 1;
-                f[y, x] = a.data[p, l];
+                f[y, x] = a._data[p, l];
             }
         }
 
@@ -336,15 +336,15 @@ public class Matrix
             throw new Exception();
 
         if (a.Columns == 1)
-            return a.data[0, 0];
+            return a._data[0, 0];
 
         if (a.Columns == 2)
-            return a.data[0, 0] * a.data[1, 1] - a.data[0, 1] * a.data[1, 0];
+            return a._data[0, 0] * a._data[1, 1] - a._data[0, 1] * a._data[1, 0];
         Fraction sum = new Fraction(0);
         //  разложение по 1-ой строке
         for (int j = 0; j < a.Columns; j++)
         {
-            sum += a.data[0, j] * A(a, 0, j); // need to check this
+            sum += a._data[0, j] * A(a, 0, j); // need to check this
         }
 
         return sum;
@@ -358,7 +358,7 @@ public class Matrix
         Fraction sum = new Fraction(0);
 
         for (int i = 0; i < matrix.Columns; ++i)
-            sum += matrix.data[i, i];
+            sum += matrix._data[i, i];
         return sum;
     }
 
@@ -369,7 +369,7 @@ public class Matrix
         if (row1 == row2)
             return;
         for (int i = 0; i < Columns; i++)
-            (data[row1, i], data[row2, i]) = (data[row2, i], data[row1, i]);
+            (_data[row1, i], _data[row2, i]) = (_data[row2, i], _data[row1, i]);
     }
 
     public void SwapColumns(int col1, int col2)
@@ -377,13 +377,13 @@ public class Matrix
         if (col1 == col2)
             return;
         for (int i = 0; i < Rows; i++)
-            (data[i, col1], data[i, col2]) = (data[i, col2], data[i, col1]);
+            (_data[i, col1], _data[i, col2]) = (_data[i, col2], _data[i, col1]);
     }
 
     public Fraction this[int i, int j]
     {
-        get => data[i, j];
-        set => data[i, j] = value;
+        get => _data[i, j];
+        set => _data[i, j] = value;
     }
 
     public static Matrix operator *(Matrix a, Matrix b)
@@ -393,14 +393,14 @@ public class Matrix
         Matrix c = new Matrix();
         c.Rows = a.Rows;
         c.Columns = b.Columns;
-        c.data = new Fraction[c.Rows, c.Columns];
+        c._data = new Fraction[c.Rows, c.Columns];
         for (int i = 0; i < a.Rows; i++)
         for (int j = 0; j < b.Columns; j++)
         {
             Fraction s = new Fraction(0);
             for (int k = 0; k < a.Columns; k++)
-                s += a.data[i, k] * b.data[k, j];
-            c.data[i, j] = s;
+                s += a._data[i, k] * b._data[k, j];
+            c._data[i, j] = s;
         }
 
         c._maxS = c.GetMaxLength();
@@ -413,10 +413,10 @@ public class Matrix
             throw new Exception();
         Matrix c = new Matrix();
         (c.Rows, c.Columns) = (a.Rows, a.Columns);
-        c.data = new Fraction[c.Rows, c.Columns];
+        c._data = new Fraction[c.Rows, c.Columns];
         for (int i = 0; i < c.Rows; i++)
         for (int j = 0; j < c.Columns; j++)
-            c.data[i, j] = a.data[i, j] + b.data[i, j];
+            c._data[i, j] = a._data[i, j] + b._data[i, j];
         c._maxS = c.GetMaxLength();
         return c;
     }
@@ -427,10 +427,10 @@ public class Matrix
             throw new Exception();
         Matrix c = new Matrix();
         (c.Rows, c.Columns) = (a.Rows, a.Columns);
-        c.data = new Fraction[c.Rows, c.Columns];
+        c._data = new Fraction[c.Rows, c.Columns];
         for (int i = 0; i < c.Rows; i++)
         for (int j = 0; j < c.Columns; j++)
-            c.data[i, j] = a.data[i, j] - b.data[i, j];
+            c._data[i, j] = a._data[i, j] - b._data[i, j];
         c._maxS = c.GetMaxLength();
         return c;
     }
@@ -441,10 +441,10 @@ public class Matrix
         Matrix c = new Matrix();
         c.Rows = a.Rows;
         c.Columns = a.Columns;
-        c.data = new Fraction[a.Rows, a.Columns];
+        c._data = new Fraction[a.Rows, a.Columns];
         for (int i = 0; i < c.Rows; i++)
         for (int j = 0; j < c.Columns; j++)
-            c.data[i, j] = a.data[i, j] * num;
+            c._data[i, j] = a._data[i, j] * num;
 
         c._maxS = c.GetMaxLength();
         return c;
@@ -472,7 +472,7 @@ public class Matrix
     {
         for (int k = 0; k < Columns; k++)
         {
-            data[i, k] += data[j, k] * alpha;
+            _data[i, k] += _data[j, k] * alpha;
         }
 
         _maxS = GetMaxLength();
@@ -484,12 +484,12 @@ public class Matrix
         Matrix c = new Matrix();
         c.Rows = a.Rows;
         c.Columns = a.Columns;
-        c.data = new Fraction[a.Rows, a.Columns];
+        c._data = new Fraction[a.Rows, a.Columns];
         for (int i = 0; i < c.Rows; i++)
         {
             for (int j = 0; j < c.Columns; j++)
             {
-                c.data[i, j] = a.data[i, j] * num;
+                c._data[i, j] = a._data[i, j] * num;
             }
         }
 
@@ -510,7 +510,7 @@ public class Matrix
         {
             for (int j = 0; j < a.Rows; j++)
             {
-                if (a.data[i, j] != b.data[i, j])
+                if (a._data[i, j] != b._data[i, j])
                     return false;
             }
         }
@@ -532,7 +532,7 @@ public class Matrix
         Fraction[,] d = new Fraction[a.Columns, a.Columns];
         for (int i = 0; i < a.Columns; i++)
         for (int j = 0; j < a.Columns; j++)
-            d[i, j] = a.data[i, j];
+            d[i, j] = a._data[i, j];
         Matrix m = new Matrix(d);
         for (int i = 1; i < pow; i++)
             m = m * a;
@@ -546,7 +546,7 @@ public class Matrix
         {
             for (int j = 0; j < Columns; j++)
             {
-                sb.Append($"{data[i, j].ToString().PadRight(_maxS)}");
+                sb.Append($"{_data[i, j].ToString().PadRight(_maxS)}");
                 if (j != (Columns - 1))
                     sb.Append(" ");
             }
@@ -587,18 +587,18 @@ public class Matrix
     public static Matrix ESwap(int n, int i, int j)
     {
         Matrix m = E(n);
-        m.data[i, i] = new Fraction(0);
-        m.data[i, j] = new Fraction(1);
+        m._data[i, i] = new Fraction(0);
+        m._data[i, j] = new Fraction(1);
 
-        m.data[j, j] = new Fraction(0);
-        m.data[j, i] = new Fraction(1);
+        m._data[j, j] = new Fraction(0);
+        m._data[j, i] = new Fraction(1);
         return m;
     }
 
     public static Matrix EMultRow(int n, int i, Fraction p)
     {
         Matrix m = Matrix.E(n);
-        m.data[i, i] = p;
+        m._data[i, i] = p;
         return m;
     }
 
@@ -606,7 +606,7 @@ public class Matrix
     public static Matrix EAddRow(int n, int i, int j, int k)
     {
         Matrix m = E(n);
-        m.data[i, j] = new Fraction(k);
+        m._data[i, j] = new Fraction(k);
         return m;
     }
 
