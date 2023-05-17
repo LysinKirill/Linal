@@ -1,1 +1,3 @@
-/Linal.sln
+bin
+obj
+*.xml
