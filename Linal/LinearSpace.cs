@@ -35,8 +35,6 @@ public class LinearSpace
         return res;
     }
 
-    public bool ContainsVector(Matrix vector)
-    {
-        
-    }
+    public bool ContainsVector(Matrix vector) 
+        => Matrix.ConcatColumns(_matrixBasis, vector).Rank() == _matrixBasis.Rank();
 }

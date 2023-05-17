@@ -141,7 +141,7 @@ public class Matrix
         return new Matrix(rows);
     }
 
-    public int Rang()
+    public int Rank()
     {
         Matrix r = Reduce(this);
         for (int i = Rows - 1; i >= 0; ++i)
