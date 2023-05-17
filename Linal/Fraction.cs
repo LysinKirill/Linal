@@ -18,6 +18,7 @@ public class Fraction
         Denominator = f.Denominator;
         Root = f.Root;
     }
+
     public Fraction(long a, long b, long root = 1)
     {
         Numerator = a;
@@ -67,19 +68,16 @@ public class Fraction
 
     public int GetLenS() => _lenS;
 
-    public static double GetDouble(Fraction f) => (double)f.Numerator / f.Denominator;
+    public static double GetDouble(Fraction f) => f.Numerator * Math.Sqrt(f.Root) / f.Denominator;
 
-    
 
     public override string ToString()
     {
         if (Denominator == 1)
         {
-            if (Numerator == 1 && Root != 1)
-                return $"√({Root})";
-            if (Numerator == -1 && Root != 1)
-                return $"-√({Root})";
-            return Numerator + (Root == 1 ? "" : $"√({Root})");
+            return Root != 1 && Numerator == 1 ? $"√({Root})" :
+                Numerator == -1 && Root != 1 ? $"-√({Root})" :
+                Numerator + (Root == 1 ? "" : $"√({Root})");
         }
 
         return
@@ -167,7 +165,9 @@ public class Fraction
         return new Fraction(num);
     }
 
-    public static Fraction Inverse(Fraction fraction) => fraction.Numerator == 0 ? throw new ArgumentException("Zero has no inverse") : new Fraction(fraction.Denominator, fraction.Numerator * fraction.Root, fraction.Root);
+    public static Fraction Inverse(Fraction fraction) => fraction.Numerator == 0
+        ? throw new ArgumentException("Zero has no inverse")
+        : new Fraction(fraction.Denominator, fraction.Numerator * fraction.Root, fraction.Root);
 
     public static Fraction operator *(Fraction a, Fraction b)
     {

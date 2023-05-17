@@ -2,7 +2,11 @@
 
 public class RazrabDaunException : Exception
 {
-    public RazrabDaunException() : base("Razrab daun!!!") {}
+    public RazrabDaunException() : base("Razrab daun!!!")
+    {
+    }
 
-    public RazrabDaunException(string message) : base(message) {}
+    public RazrabDaunException(string message) : base(message)
+    {
+    }
 }
