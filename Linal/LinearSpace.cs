@@ -2,20 +2,20 @@ namespace Linal;
 
 public class LinearSpace
 {
-    private readonly List<Matrix> _basis;
-    private Matrix _matrixBasis;
-    public int Dim => _basis.Count;
+    public List<Matrix> Basis { get; }
+    public Matrix MatrixBasis { get; }
+    public int Dim => Basis.Count;
 
     public LinearSpace(List<Matrix> vectors)
     {
-        _basis = GetBasis(vectors);
-        _matrixBasis = Matrix.ConcatColumns(_basis.ToArray());
+        Basis = GetBasis(vectors);
+        MatrixBasis = Matrix.ConcatColumns(Basis.ToArray());
     }
 
     public LinearSpace(params Matrix[] vectors)
     {
-        _basis = GetBasis(vectors.ToList());
-        _matrixBasis = Matrix.ConcatColumns(_basis.ToArray());
+        Basis = GetBasis(vectors.ToList());
+        MatrixBasis = Matrix.ConcatColumns(Basis.ToArray());
     }
 
     private List<Matrix> GetBasis(List<Matrix> vectors)
@@ -36,5 +36,5 @@ public class LinearSpace
     }
 
     public bool ContainsVector(Matrix vector) 
-        => Matrix.ConcatColumns(_matrixBasis, vector).Rank() == _matrixBasis.Rank();
+        => Matrix.ConcatColumns(MatrixBasis, vector).Rank() == MatrixBasis.Rank();
 }

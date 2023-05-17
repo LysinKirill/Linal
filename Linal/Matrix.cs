@@ -692,6 +692,24 @@ public class Matrix
         return new Matrix(arr);
     }
 
+
+    public Matrix TakeColumns(Predicate<int> f)
+    {
+        List<List<Fraction>> rows = new();
+        
+        
+        for (int i = 0; i < Rows; ++i)
+        {
+            rows[i] = new List<Fraction>();
+            for (int j = 0; j < Columns; ++j)
+            {
+                if(f(j))
+                    rows[i].Add(_data[i, j]);
+            }
+        }
+
+        return new Matrix(rows);
+    }
     public static Matrix GetRandRationalMatrix(int m, int n, long a, long b, long max_den)
     {
         Random rand = new Random();
