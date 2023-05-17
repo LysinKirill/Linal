@@ -18,6 +18,21 @@ public class Matrix
         _data = f;
         _maxS = GetMaxLength();
     }
+    
+    public Matrix(List<List<Fraction>> fractionList)
+    {
+        Rows = fractionList.Count;
+        Columns = fractionList[0].Count;
+        _data = new Fraction[Rows, Columns];
+        
+        for(int i = 0; i < Rows; ++i)
+        {
+            for(int j = 0; j < Columns; ++j)
+            {
+                _data[i, j] = fractionList[i][j];
+            }
+        }
+    }
 
     public Matrix()
     {
@@ -87,6 +102,42 @@ public class Matrix
 
         _maxS = GetMaxLength();
         Console.WriteLine();
+    }
+    
+    public static Matrix ConcatColumns(Matrix a, Matrix b)
+    {
+        Matrix newMatrix = new Matrix();
+        newMatrix.Columns = a.Columns + b.Columns;
+        newMatrix.Rows = a.Rows + b.Rows;
+        newMatrix._data = new Fraction[newMatrix.Rows, newMatrix.Columns];
+        for(int i = 0; i < newMatrix.Rows; ++i)
+        {
+            for(int j = 0; j < newMatrix.Columns; ++j)
+            {
+                newMatrix._data[i, j] = j < a.Columns ? a._data[i, j] : b._data[i, j - a.Columns];
+            }
+        }
+        return newMatrix;
+    }
+    
+    public static Matrix ConcatColumns(params Matrix[] matrixes)
+    {
+        int commonRowCount = matrixes[0].Rows;
+        int columns = matrixes.Sum(x => x.Columns);
+        
+        List<List<Fraction>> rows = new ();
+        
+        for(int i = 0; i < commonRowCount; ++i)
+            rows.Add(new List<Fraction>());
+        
+        for(int i = 0; i < commonRowCount; ++i)
+        {
+            foreach(var matrix in matrixes)
+            {
+                for(int j = 0; j < matrix.Columns; ++j
+            }
+        }
+        return new Matrix();
     }
     
     public void Read()
