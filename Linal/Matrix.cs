@@ -40,7 +40,6 @@ public class Matrix
         Columns = 0;
         _data = null;
     }
-
     public Matrix(int rows, int columns)
     {
         if (rows <= 0 || columns <= 0)
@@ -95,7 +94,7 @@ public class Matrix
         string[] s;
         for (int i = 0; i < size.Item1; i++)
         {
-            s = Console.ReadLine().Split(" ");
+            s = Console.ReadLine()!.Split(" ");
             for (int j = 0; j < size.Item2; j++)
                 _data[i, j] = Fraction.Parse(s[j]);
         }
@@ -123,8 +122,7 @@ public class Matrix
     public static Matrix ConcatColumns(params Matrix[] matrixes)
     {
         int commonRowCount = matrixes[0].Rows;
-        int columns = matrixes.Sum(x => x.Columns);
-        
+
         List<List<Fraction>> rows = new ();
         
         for(int i = 0; i < commonRowCount; ++i)
@@ -134,21 +132,39 @@ public class Matrix
         {
             foreach(var matrix in matrixes)
             {
-                for(int j = 0; j < matrix.Columns; ++j
+                for (int j = 0; j < matrix.Columns; ++j)
+                {
+                    rows[i].Add(matrix[i, j]);
+                }
             }
         }
-        return new Matrix();
+        return new Matrix(rows);
+    }
+
+    public int Rang()
+    {
+        Matrix r = Reduce(this);
+        for (int i = Rows - 1; i >= 0; ++i)
+        {
+            for (int j = 0; j < Columns; ++i)
+            {
+                if (r._data[i, j] != 0)
+                    return i + 1;
+            }
+        }
+
+        return 0;
     }
     
     public void Read()
     {
-        String[] s = Console.ReadLine().Split(" ");
+        String[] s = Console.ReadLine()!.Split(" ");
         (int, int) size = (int.Parse(s[0]), int.Parse(s[1]));
         _data = new Fraction[size.Item1, size.Item2];
         (Rows, Columns) = size;
         for (int i = 0; i < size.Item1; i++)
         {
-            s = Console.ReadLine().Split(" ");
+            s = Console.ReadLine()!.Split(" ");
             for (int j = 0; j < size.Item2; j++)
                 _data[i, j] = Fraction.Parse(s[j]);
         }
