@@ -11,6 +11,23 @@ public class Matrix
 
     private int _maxS;
 
+    public List<List<Fraction>> Data
+    {
+        get
+        {
+            List<List<Fraction>> rows = new();
+            for (int i = 0; i < Rows; ++i)
+            {
+                rows.Add(new());
+                for (int j = 0; j < Columns; ++j)
+                {
+                    rows[i].Add(_data[i, j]);
+                }
+            }
+            return rows;
+        }
+    }
+
     public Matrix(Fraction[,] f)
     {
         Rows = f.GetLength(0);
@@ -149,6 +166,21 @@ public class Matrix
         return new Matrix(rows);
     }
 
+    public List<Matrix> GetVectors()
+    {
+        Matrix temp = Transpose(this);
+        List<List<Fraction>> rows = temp.Data;
+        List<Matrix> vectors = new();
+        foreach (List<Fraction> row in rows)
+        {
+            Fraction[,] tempData = new Fraction[row.Count, 1];
+            for (int i = 0; i < row.Count; ++i)
+                tempData[i, 0] = row[i];
+            vectors.Add(new Matrix(tempData));
+        }
+
+        return vectors;
+    }
     public int Rank()
     {
         Matrix r = Reduce(this);
