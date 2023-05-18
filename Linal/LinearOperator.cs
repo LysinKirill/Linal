@@ -13,8 +13,10 @@ public class LinearOperator
         _firstLinearSpace = V;
         _secondLinearSpace = W;
         _func = func;
-        
-        
+        if (!CheckLinearSpace())
+        {
+            throw new ArgumentException("Incorrect operator");
+        }
     }
 
 
