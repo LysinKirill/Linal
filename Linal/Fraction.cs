@@ -268,7 +268,6 @@ public class Fraction
     public static bool operator <(double d, Fraction f) => d < GetDouble(f);
     public static bool operator >=(double d, Fraction f) => d >= GetDouble(f);
     public static bool operator <=(double d, Fraction f) => d <= GetDouble(f);
-
-
-    public static explicit operator Fraction(long x) => new(x);
+    
+    public static implicit operator Fraction(long x) => new(x);
 }
