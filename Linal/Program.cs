@@ -21,9 +21,8 @@ class Program
 
         Matrix m = new Matrix();
         m.Read();
-        Console.WriteLine(Matrix.Inverse(m));
-        foreach (Matrix vector in m.GetVectors())
-            Console.WriteLine(vector + "\n");
+        
+        Console.WriteLine(Matrix.Diagonalize(m));
 
     }
 }

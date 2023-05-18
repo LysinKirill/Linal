@@ -102,30 +102,39 @@ public class Matrix
 
         Matrix m = Copy(matrix);
         
-        while (!m.IsDiagonal())
+        for (int i = 0; i < m.Rows; ++i)
         {
-            for (int i = 0; i < m.Rows; ++i)
+            if (m[i, i] != 0)
             {
-                if (m._data[i][i] != 0)
+                Fraction k = Fraction.Abs(m[i, i]);
+                m.ApplyRow(x => x / k, i);
+                for (int col = i + 1; col < m.Columns; ++col)
                 {
-                    Fraction k = Fraction.Abs(m._data[i][i]);
-                    m.ApplyRow(x => x / k, i);
-                    for (int col = i + 1; col < m.Columns; ++col)
+                    m[col, col] -= k * m[i, col] * m[i, col];
+                    for (int j = col + 1; j < m.Columns; j++)
                     {
-                        m._data[col][col] -= k * m._data[i][col] * m._data[i][col];
-                        for (int j = col + 1; j < m.Columns; j++)
-                        {
-                            m._data[col][j] -= k * m._data[i][col] * m._data[i][j];
-                        }
-
-                        m._data[i][col] = new Fraction(0);
+                        m[col, j] -= k * m[i, col] * m[i, j];
                     }
-                }
-                
 
-                
+                    m[i, col] = new Fraction(0);
+                }
             }
         }
+
+        // for (int i = 0; i < m.Rows; ++i)
+        // {
+        //     if (m[i, i] == 0)
+        //     {
+        //         
+        //         
+        //     }
+        // }
+        
+        for (int i = 0; i < m.Rows; ++i)
+        for (int j = i + 1; j < m.Columns; ++j)
+            if (i < j)
+                m[j, i] = m[i, j];
+        return m;
     }
 
     // public static Matrix Parse(string s)
