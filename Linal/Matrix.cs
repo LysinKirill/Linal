@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 
 namespace Linal;
 
@@ -70,6 +69,63 @@ public class Matrix
 
 
         return copy;
+    }
+
+    public bool IsDiagonal()
+    {
+        for (int i = 0; i < Rows; ++i)
+        for (int j = 0; j < Columns; ++j)
+        {
+            if (i == j)
+                continue;
+            if (_data[i][j] != 0)
+                return false;
+        }
+
+        return true;
+    }
+
+    public bool IsSymmetrical()
+    {
+        if (!IsSquare(this))
+            return false;
+        for (int i = 0; i < Rows; ++i)
+        for (int j = i + 1; j < Rows; ++j)
+            if (_data[i][j] != _data[j][i])
+                return false;
+        return true;
+    }
+    public static Matrix Diagonalize(Matrix matrix)
+    {
+        if (!matrix.IsSymmetrical())
+            throw new ArgumentException("Matrix should be symmetrical");
+
+        Matrix m = Copy(matrix);
+        
+        while (!m.IsDiagonal())
+        {
+            for (int i = 0; i < m.Rows; ++i)
+            {
+                if (m._data[i][i] != 0)
+                {
+                    Fraction k = Fraction.Abs(m._data[i][i]);
+                    m.ApplyRow(x => x / k, i);
+                    for (int col = i + 1; col < m.Columns; ++col)
+                    {
+                        m._data[col][col] -= k * m._data[i][col] * m._data[i][col];
+                        for (int j = col + 1; j < m.Columns; j++)
+                        {
+                            m._data[col][j] -= k * m._data[i][col] * m._data[i][j];
+                        }
+
+                        m._data[i][col] = new Fraction(0);
+                    }
+                }
+                
+
+                
+            }
+        }
     }
 
     // public static Matrix Parse(string s)

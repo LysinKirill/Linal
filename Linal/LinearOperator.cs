@@ -13,12 +13,13 @@ public class LinearOperator
         _firstLinearSpace = V;
         _secondLinearSpace = W;
         _func = func;
-        
-        
+
+        if (!CheckLinearOperator())
+            throw new ArgumentException("Invalid operator");
     }
 
 
-    private bool CheckLinearSpace()
+    private bool CheckLinearOperator()
     {
         Fraction[] magicConsts = { new(13, 7), new(5, 3), new(-19, 6), new(1, 2), new(-11, 5) };
         foreach (Matrix e1 in _firstLinearSpace.Basis)
