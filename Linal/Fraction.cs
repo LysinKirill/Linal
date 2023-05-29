@@ -17,6 +17,7 @@ public class Fraction
         Numerator = f.Numerator;
         Denominator = f.Denominator;
         Root = f.Root;
+        Simplify();
     }
 
     public Fraction(long a, long b, long root = 1)
@@ -39,6 +40,16 @@ public class Fraction
 
     private void Simplify()
     {
+        if (Denominator == 0)
+        {
+            throw new ArgumentException("Denom is 0");
+        }
+        if (Numerator == 0)
+        {
+            Denominator = 1;
+            Root = 1;
+            return;
+        }
         // haven't checked this part of code yet.
         long i = 2;
         while (i * i <= Root)
