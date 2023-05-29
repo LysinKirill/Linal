@@ -252,6 +252,10 @@ public class Fraction
     public static bool operator <=(Fraction f1, Fraction f2) => GetDouble(f1) <= GetDouble(f2);
 
     public static bool operator ==(Fraction f, double d) => Math.Abs(GetDouble(f) - d) < _eps;
+
+    public static bool operator ==(Fraction f, long n) => f.Denominator == 1 && f.Numerator == n;
+    public static bool operator !=(Fraction f, long n) => !(f == n);
+
     public static bool operator !=(Fraction f, double d) => !(f == d);
     public static bool operator >(Fraction f, double d) => GetDouble(f) > d;
     public static bool operator <(Fraction f, double d) => GetDouble(f) < d;
@@ -264,7 +268,6 @@ public class Fraction
     public static bool operator <(double d, Fraction f) => d < GetDouble(f);
     public static bool operator >=(double d, Fraction f) => d >= GetDouble(f);
     public static bool operator <=(double d, Fraction f) => d <= GetDouble(f);
-
-
-    public static explicit operator Fraction(long x) => new(x);
+    
+    public static implicit operator Fraction(long x) => new(x);
 }
