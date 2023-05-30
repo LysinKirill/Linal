@@ -16,6 +16,8 @@ public class LinearOperator
 
         if (!CheckLinearOperator())
             throw new ArgumentException("Invalid operator");
+
+        A = GetOperatorMatrix();
     }
 
 

@@ -10,7 +10,7 @@ class Program
         {
             vectors.Add(Matrix.ReadVector());
         }
-
+        
         var eSpace = new EuclideanSpace(vectors, (v1, v2) =>
         {
             var res = new Fraction(0);
@@ -18,16 +18,23 @@ class Program
             {
                 res += v1[i, 0] * v2[i, 0];
             }
-
+        
             return res;
         });
-
+        
         var nSpace = eSpace.Orthogonalize();
-        Console.WriteLine("Amogus");
-        //Matrix m = new Matrix();
-        //m.Read();
 
-        //Console.WriteLine(Matrix.Diagonalize(m));
+        foreach (Matrix m in nSpace.Basis)
+        {
+            Console.WriteLine("Sus");
+            Console.WriteLine(m);
+        }
+        Console.WriteLine("Amogus");
+        // Matrix m = new Matrix();
+        // m.Read();
+        //
+        // Console.WriteLine(Matrix.Reduce(m));
+        // Console.WriteLine(Matrix.Canonical(m));
 
     }
 }

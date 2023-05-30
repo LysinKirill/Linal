@@ -80,6 +80,7 @@ public class Fraction
     public int GetLenS() => _lenS;
 
     public static double GetDouble(Fraction f) => f.Numerator * Math.Sqrt(f.Root) / f.Denominator;
+    public double GetDouble() => Numerator * Math.Sqrt(Root) / Denominator;
 
 
     public override string ToString()

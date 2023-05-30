@@ -95,13 +95,14 @@ public class Matrix
                 return false;
         return true;
     }
+
     public static Matrix Diagonalize(Matrix matrix)
     {
         if (!matrix.IsSymmetrical())
             throw new ArgumentException("Matrix should be symmetrical");
 
         Matrix m = Copy(matrix);
-        
+
         for (int i = 0; i < m.Rows; ++i)
         {
             if (m[i, i] != 0)
@@ -121,15 +122,6 @@ public class Matrix
             }
         }
 
-        // for (int i = 0; i < m.Rows; ++i)
-        // {
-        //     if (m[i, i] == 0)
-        //     {
-        //         
-        //         
-        //     }
-        // }
-        
         for (int i = 0; i < m.Rows; ++i)
         for (int j = i + 1; j < m.Columns; ++j)
             if (i < j)
@@ -178,7 +170,6 @@ public class Matrix
 
     public static Matrix ReadVector()
     {
-        var m = new Matrix();
         List<List<Fraction>> rows = new();
         rows.Add(Array.ConvertAll(Console.ReadLine().Split(), Fraction.Parse).ToList());
         return Transpose(new Matrix(rows));
@@ -245,7 +236,7 @@ public class Matrix
                 tempData[i][0] = row[i];
             }
 
-            
+
             vectors.Add(new Matrix(tempData));
         }
 
@@ -347,6 +338,46 @@ public class Matrix
             _data[i][j] = func(_data[i][j]);
     }
 
+    // This method has not been tested yet
+    public void Apply(Func<Fraction, Fraction> func, bool[][] filter)
+    {
+        if (Rows != filter.Length || Columns != filter[0].Length)
+            throw new ArgumentException(
+                "The dimensions of the boolean matrix do not match the dimension of the matrix being changed");
+        for (int i = 0; i < Rows; ++i)
+        for (int j = 0; j < Columns; ++j)
+            if (filter[i][j])
+                _data[i][j] = func(_data[i][j]);
+    }
+
+    // This method has not been tested yet
+    public bool[][] Filter(Predicate<Fraction> condition)
+    {
+        bool[][] filter = new bool[Rows][];
+        for (int i = 0; i < Rows; ++i)
+        {
+            filter[i] = new bool[Columns];
+            for (int j = 0; j < Columns; ++j)
+                filter[i][j] = condition(_data[i][j]);
+        }
+
+        return filter;
+    }
+
+    // This method has not been tested yet
+    public bool[][] Filter(Func<int, int, bool> checkPos)
+    {
+        bool[][] filter = new bool[Rows][];
+        for (int i = 0; i < Rows; ++i)
+        {
+            filter[i] = new bool[Columns];
+            for (int j = 0; j < Columns; ++j)
+                filter[i][j] = checkPos(i, j);
+        }
+
+        return filter;
+    }
+
     public void ApplyRows(Func<Fraction, Fraction> func, params int[] rows)
     {
         foreach (int i in rows)
@@ -365,6 +396,7 @@ public class Matrix
 
     public void ApplyColumn(Func<Fraction, Fraction> func, int column) => ApplyRows(func, column);
 
+    // This method has not been tested yet
     public static Matrix Reduce(Matrix matrix)
     {
         Matrix m = Copy(matrix);
@@ -373,24 +405,27 @@ public class Matrix
         int shift = 0;
         for (int i = 0; i < m.Rows; ++i)
         {
-            int aux = i - shift;
-            while (aux < m.Rows && m[aux, i] == 0)
-                ++aux;
-            if (aux == m.Rows)
+            if (i < m.Columns)
             {
-                ++shift;
-                continue;
-            }
+                int aux = i - shift;
+                while (aux < m.Rows && m[aux, i] == 0)
+                    ++aux;
+                if (aux == m.Rows)
+                {
+                    ++shift;
+                    continue;
+                }
 
-            m.SwapRows(i - shift, aux);
-            Fraction inv = Fraction.Inverse(m[i - shift, i]);
-            m.ApplyRow(x => x * inv, i - shift);
+                m.SwapRows(i - shift, aux);
+                Fraction inv = Fraction.Inverse(m[i - shift, i]);
+                m.ApplyRow(x => x * inv, i - shift);
+            }
 
             for (int k = i - shift + 1; k < m.Rows; ++k)
             {
                 if (m[k, i] == 0)
                     continue;
-                inv = Fraction.Inverse(m[k, i]);
+                Fraction inv = Fraction.Inverse(m[k, i]);
                 m.ApplyRow(x => x * inv, k);
                 m.AddToRow(k, i - shift, new Fraction(-1));
             }
@@ -399,6 +434,7 @@ public class Matrix
         return m;
     }
 
+    // This method has not been tested yet
     public static Matrix Canonical(Matrix matrix)
     {
         Matrix m = Reduce(matrix);
@@ -493,7 +529,7 @@ public class Matrix
         if (i >= a.Rows || j >= a.Columns)
             throw new Exception("Cannot get such Minor");
         Fraction[][] f = new Fraction[a.Rows - 1][];
-        for(int t = 0; t < a.Rows - 1; ++t)
+        for (int t = 0; t < a.Rows - 1; ++t)
             f[t] = new Fraction[a.Columns - 1];
 
         for (int p = 0; p < a.Rows; p++)
@@ -654,14 +690,15 @@ public class Matrix
 
     public static Matrix operator ^(Matrix matrix, int power)
     {
-        if (matrix.Rows != matrix.Columns)
+        if (!IsSquare(matrix))
             throw new ArgumentException("Cannot raise non-square matrix to a power");
         if (power == 0)
             return E(matrix.Columns);
-
+        
+        // What is the meaning of negative power other than -1?
         if (power < 0)
-            return Inverse(matrix) * matrix ^ Math.Abs(power);
-
+            return Inverse(matrix ^ Math.Abs(power));
+        
         if (power % 2 == 1)
             return matrix * (matrix ^ (power - 1));
 
@@ -856,7 +893,7 @@ public class Matrix
         return new Matrix(rows);
     }
 
-    public static Matrix GetRandRationalMatrix(int m, int n, long a, long b, long max_den)
+    public static Matrix GetRandRationalMatrix(int m, int n, long a, long b, long maxDen)
     {
         Random rand = new Random();
         Fraction[][] arr = new Fraction[m][];
@@ -865,7 +902,7 @@ public class Matrix
             arr[i] = new Fraction[n];
             for (int j = 0; j < n; j++)
             {
-                arr[i][j] = new Fraction(rand.NextInt64(a, b + 1), rand.NextInt64(1, max_den + 1));
+                arr[i][j] = new Fraction(rand.NextInt64(a, b + 1), rand.NextInt64(1, maxDen + 1));
             }
         }
 
