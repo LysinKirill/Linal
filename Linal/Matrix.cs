@@ -245,9 +245,9 @@ public class Matrix
     public int Rank()
     {
         var r = Reduce();
-        for (int i = Rows - 1; i >= 0; ++i)
+        for (int i = Rows - 1; i >= 0; --i)
         {
-            for (int j = 0; j < Columns; ++i)
+            for (int j = 0; j < Columns; ++j)
             {
                 if (r._data[i][j] != 0)
                     return i + 1;
