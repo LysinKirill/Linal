@@ -1,7 +1,16 @@
+using Xunit.Abstractions;
+
 namespace LinalTesting;
 
 public class MatrixTest
 {
+    private readonly ITestOutputHelper output;
+
+    public MatrixTest(ITestOutputHelper output)
+    {
+        this.output = output;
+    }
+
     [Fact]
     public void CanonicalTest1()
     {
@@ -20,8 +29,10 @@ public class MatrixTest
         var res = Matrix.Canonical(m);
         if (res != expectedRes)
         {
-            throw new Exception($"Expected:\n{expectedRes}\nWas:\n{res}");
+            throw new Exception($"Input:\n{m}\nExpected:\n{expectedRes}\nWas:\n{res}");
         }
+
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
     }
 
     [Fact]
@@ -42,8 +53,10 @@ public class MatrixTest
         var res = Matrix.Canonical(m);
         if (res != expectedRes)
         {
-            throw new Exception($"Expected:\n{expectedRes}\nWas:\n{res}");
+            throw new Exception($"Input:\n{m}\nExpected:\n{expectedRes}\nWas:\n{res}");
         }
+
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
     }
 
     [Fact]
@@ -64,10 +77,12 @@ public class MatrixTest
         var res = Matrix.Canonical(m);
         if (res != expectedRes)
         {
-            throw new Exception($"Expected:\n{expectedRes}\nWas:\n{res}");
+            throw new Exception($"Input:\n{m}\nExpected:\n{expectedRes}\nWas:\n{res}");
         }
+
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
     }
-    
+
     [Fact]
     public void CanonicalTest4()
     {
@@ -86,7 +101,9 @@ public class MatrixTest
         var res = Matrix.Canonical(m);
         if (res != expectedRes)
         {
-            throw new Exception($"Expected:\n{expectedRes}\nWas:\n{res}");
+            throw new Exception($"Input:\n{m}\nExpected:\n{expectedRes}\nWas:\n{res}");
         }
+
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
     }
 }
