@@ -45,9 +45,9 @@ public class LinearOperator
 
     private Matrix GetOperatorMatrix()
     {
-        Matrix temp = Matrix.ConcatColumns(Matrix.Transpose(_firstLinearSpace.MatrixBasis),
-            Matrix.Transpose(_secondLinearSpace.MatrixBasis));
-        temp = Matrix.Canonical(temp);
-        return Matrix.Transpose(temp.TakeColumns(x => x > _firstLinearSpace.Basis[0].Rows));
+        Matrix temp = Matrix.ConcatColumns(_firstLinearSpace.MatrixBasis.Transpose(),
+            _secondLinearSpace.MatrixBasis.Transpose());
+        temp = temp.Canonical();
+        return temp.TakeColumns(x => x > _firstLinearSpace.Basis[0].Rows).Transpose();
     }
 }

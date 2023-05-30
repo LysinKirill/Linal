@@ -36,8 +36,8 @@ public class EuclideanSpace : LinearSpace
 
     public Matrix Gram() => Gram(Basis);
 
-    public Fraction Gramian() => Matrix.Det(Gram());
-    public Fraction Gramian(List<Matrix> vectors) => Matrix.Det(Gram(vectors));
+    public Fraction Gramian() => Gram().Det();
+    public Fraction Gramian(List<Matrix> vectors) => Gram(vectors).Det();
 
     public double GetVolume(List<Matrix> vectors) => Math.Sqrt(Gramian(vectors).GetDouble());
     
@@ -46,7 +46,7 @@ public class EuclideanSpace : LinearSpace
         var newBasis = new List<Matrix>(Basis.Count);
         for (int i = 0; i < Basis.Count; i++)
         {
-            var b = Matrix.Copy(Basis[i]);
+            var b = Basis[i].Copy();
             for (int j = 0; j < newBasis.Count; j++)
             {
                 b -= newBasis[j] * (_dotProduct(newBasis[j], Basis[i]) / _dotProduct(newBasis[j], newBasis[j]));

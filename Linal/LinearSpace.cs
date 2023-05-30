@@ -20,7 +20,7 @@ public class LinearSpace
 
     private List<Matrix> GetBasis(List<Matrix> vectors)
     {
-        var canonical = Matrix.Canonical(Matrix.ConcatColumns(vectors.ToArray()));
+        var canonical = Matrix.ConcatColumns(vectors.ToArray()).Canonical();
         var res = new List<Matrix>(vectors.Count);
         for (int i = 0; i < canonical.Rows; i++)
         {
