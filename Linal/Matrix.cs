@@ -405,6 +405,7 @@ public class Matrix
         int shift = 0;
         for (int i = 0; i < m.Rows; ++i)
         {
+            var inverse = new Fraction();
             if (i < m.Columns)
             {
                 int aux = i - shift;
@@ -417,16 +418,16 @@ public class Matrix
                 }
 
                 m.SwapRows(i - shift, aux);
-                Fraction inv = Fraction.Inverse(m[i - shift, i]);
-                m.ApplyRow(x => x * inv, i - shift);
+                inverse = Fraction.Inverse(m[i - shift, i]);
+                m.ApplyRow(x => x * inverse, i - shift);
             }
 
             for (int k = i - shift + 1; k < m.Rows; ++k)
             {
                 if (m[k, i] == 0)
                     continue;
-                Fraction inv = Fraction.Inverse(m[k, i]);
-                m.ApplyRow(x => x * inv, k);
+                inverse = Fraction.Inverse(m[k, i]);
+                m.ApplyRow(x => x * inverse, k);
                 m.AddToRow(k, i - shift, new Fraction(-1));
             }
         }
@@ -746,9 +747,9 @@ public class Matrix
             return false;
 
 
-        for (int i = 0; i < a.Columns; i++)
+        for (int i = 0; i < a.Rows; i++)
         {
-            for (int j = 0; j < a.Rows; j++)
+            for (int j = 0; j < a.Columns; j++)
             {
                 if (a._data[i][j] != b._data[i][j])
                     return false;

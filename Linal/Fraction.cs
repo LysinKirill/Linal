@@ -34,7 +34,7 @@ public class Fraction
         Simplify();
     }
 
-    public Fraction(long a) : this(a, 1)
+    public Fraction(long a = 1) : this(a, 1)
     {
     }
 
