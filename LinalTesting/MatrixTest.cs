@@ -20,7 +20,7 @@ public class MatrixTest
         var res = Matrix.Canonical(m);
         if (res != expectedRes)
         {
-            throw new Exception();
+            throw new Exception($"Expected:\n{expectedRes}\nWas:\n{res}");
         }
     }
 
@@ -42,7 +42,7 @@ public class MatrixTest
         var res = Matrix.Canonical(m);
         if (res != expectedRes)
         {
-            throw new Exception();
+            throw new Exception($"Expected:\n{expectedRes}\nWas:\n{res}");
         }
     }
 
@@ -64,7 +64,7 @@ public class MatrixTest
         var res = Matrix.Canonical(m);
         if (res != expectedRes)
         {
-            throw new Exception();
+            throw new Exception($"Expected:\n{expectedRes}\nWas:\n{res}");
         }
     }
     
@@ -86,7 +86,7 @@ public class MatrixTest
         var res = Matrix.Canonical(m);
         if (res != expectedRes)
         {
-            throw new Exception();
+            throw new Exception($"Expected:\n{expectedRes}\nWas:\n{res}");
         }
     }
 }
