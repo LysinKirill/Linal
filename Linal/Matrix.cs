@@ -427,6 +427,11 @@ public class Matrix
             if (aux == m.Columns)
                 continue;
 
+            if (m[row, aux] != 1)
+            {
+                Fraction inverse = 1 / m[row, aux];
+                m.ApplyRow(x => x * inverse, row);
+            }
             for (int i = 0; i < row; i++)
             {
                 if (m[i, aux] == 0)
