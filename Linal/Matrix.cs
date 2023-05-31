@@ -176,26 +176,6 @@ public class Matrix
         return new Matrix(rows).Transpose();
     }
 
-    public static Matrix ConcatColumns(Matrix a, Matrix b)
-    {
-        var newMatrix = new Matrix
-        {
-            Columns = a.Columns + b.Columns,
-            Rows = a.Rows + b.Rows
-        };
-        newMatrix._data = new Fraction[newMatrix.Rows][];
-        for (int i = 0; i < newMatrix.Rows; ++i)
-        {
-            newMatrix._data[i] = new Fraction[newMatrix.Columns];
-            for (int j = 0; j < newMatrix.Columns; ++j)
-            {
-                newMatrix._data[i][j] = j < a.Columns ? a._data[i][j] : b._data[i][j - a.Columns];
-            }
-        }
-
-        return newMatrix;
-    }
-
     public static Matrix ConcatColumns(params Matrix[] matrices)
     {
         var commonRowCount = matrices[0].Rows;

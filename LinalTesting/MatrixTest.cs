@@ -298,6 +298,46 @@ public class MatrixTest
             throw new Exception($"Input A:\n{a}\nInput B:\n{b}\nExpected:\n{expectedRes}\nWas:\n{res}");
         }
     }
+    
+    [Fact]
+    [Trait("Category", "ConcatColumnsMethod")]
+    public void ConcatColumnsTest5()
+    {
+        var a = new Matrix(new[]
+        {
+            new Fraction[] { 1, 3, },
+            new Fraction[] { 3, 2, },
+            new Fraction[] { 0, -1, },
+        });
+
+        var b = new Matrix(new[]
+        {
+            new Fraction[] { 5, 3, 6 },
+            new Fraction[] { 10, -2, 7 },
+            new Fraction[] { -6, 3, 1 },
+        });
+        
+        var c = new Matrix(new[]
+        {
+            new Fraction[] { 5, },
+            new Fraction[] { 7, },
+            new Fraction[] { 9, },
+        });
+
+        var expectedRes = new Matrix(new[]
+        {
+            new Fraction[] { 1, 3, 5, 3, 6, 5 },
+            new Fraction[] { 3, 2, 10, -2, 7, 7 },
+            new Fraction[] { 0, -1, -6, 3, 1, 9 },
+        });
+
+        var res = Matrix.ConcatColumns(a, b, c);
+
+        if (res != expectedRes)
+        {
+            throw new Exception($"Input A:\n{a}\nInput B:\n{b}\nInput C:\n{c}\nExpected:\n{expectedRes}\nWas:\n{res}");
+        }
+    }
 
     [Fact]
     [Trait("Category", "GetVectorsMethod")]
