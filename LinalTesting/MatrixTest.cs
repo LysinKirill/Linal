@@ -448,6 +448,67 @@ public class MatrixTest
 
         output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
     }
+    
+    [Fact]
+    [Trait("Category", "ReduceMethod")]
+    public void ReduceTest1()
+    {
+        var m = new Matrix(new[]
+        {
+            new Fraction[] { 5, -5, -3 },
+            new Fraction[] { 3, -3, -2 },
+            new Fraction[] { 2, -2, -1 },
+        });
+        var res = m.Reduce();
+
+        if (res[1, 0] != 0 || res[1, 1] != 0 || res[2, 0] != 0 || res[2, 1] != 0 || res[2, 2] != 0)
+        {
+            throw new Exception($"Input:\n{m}\nWas:\n{res}");
+        }
+
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
+    }
+    
+    [Fact]
+    [Trait("Category", "ReduceMethod")]
+    public void ReduceTest2()
+    {
+        var m = new Matrix(new[]
+        {
+            new Fraction[] { 25, -20, -3, 5 },
+            new Fraction[] { 15, -3, -7, 18 },
+            new Fraction[] { 4, -7, -1, 25 },
+        });
+        var res = m.Reduce();
+
+        if (res[1, 0] != 0 || res[2, 0] != 0 || res[2, 1] != 0)
+        {
+            throw new Exception($"Input:\n{m}\nWas:\n{res}");
+        }
+
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
+    }
+    
+    [Fact]
+    [Trait("Category", "ReduceMethod")]
+    public void ReduceTest3()
+    {
+        var m = new Matrix(new[]
+        {
+            new Fraction[] { 25, -20, },
+            new Fraction[] { 18, -2, },
+            new Fraction[] { 3, -7, },
+            new Fraction[] { 8, -9, },
+        });
+        var res = m.Reduce();
+
+        if (res[1, 0] != 0 || res[2, 0] != 0 || res[2, 1] != 0 || res[3, 0] != 0 || res[3, 1] != 0)
+        {
+            throw new Exception($"Input:\n{m}\nWas:\n{res}");
+        }
+
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
+    }
 
     [Fact]
     [Trait("Category", "CanonicalMethod")]
@@ -539,6 +600,35 @@ public class MatrixTest
             new Fraction[] { 1, 0, 0, new(-39, 14), new(-99, 140) },
             new Fraction[] { 0, 1, 0, new(165, 14), new(115, 28) },
             new Fraction[] { 0, 0, 1, new(52, 7), new(25, 14) },
+        });
+        var res = m.Canonical();
+        if (res != expectedRes)
+        {
+            throw new Exception($"Input:\n{m}\nExpected:\n{expectedRes}\nWas:\n{res}");
+        }
+
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
+    }
+    
+    [Fact]
+    [Trait("Category", "CanonicalMethod")]
+    public void CanonicalTest5()
+    {
+        var m = new Matrix(new[]
+        {
+            new Fraction[] { 5, -3, 10, },
+            new Fraction[] { 20, 2, 5, },
+            new Fraction[] { -15, 1, -6, },
+            new Fraction[] { -31, 7, -15, },
+            new Fraction[] { -22, 5, -4, },
+        });
+        var expectedRes = new Matrix(new[]
+        {
+            new Fraction[] { 1, 0, 0, },
+            new Fraction[] { 0, 1, 0, },
+            new Fraction[] { 0, 0, 1, },
+            new Fraction[] { 0, 0, 0, },
+            new Fraction[] { 0, 0, 0 },
         });
         var res = m.Canonical();
         if (res != expectedRes)
