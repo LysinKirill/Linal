@@ -515,8 +515,7 @@ public class Matrix
                 inverse = Fraction.Inverse(m[i - shift, i]);
                 m.ApplyRow(x => x * inverse, i - shift);
             }
-
-
+            
             for (int k = i - shift + 1; k < m.Rows; ++k)
             {
                 if (m[k, i] == 0)
@@ -594,15 +593,17 @@ public class Matrix
     /// <returns>логическое значение, показывающее, была ли найдена обратная матрица</returns>
     public bool TryInverse(out Matrix invMatrix)
     {
-        var det = Det();
-        if (det == 0)
+        try
         {
-            invMatrix = null!;
+            invMatrix = Inverse();
+            return true;
+        }
+        catch (ArgumentException e)
+        {
+            Console.WriteLine(e);
+            invMatrix = null;
             return false;
         }
-
-        invMatrix = (1 / det) * Adj();
-        return true;
     }
 
     /// <summary>
