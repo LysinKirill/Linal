@@ -136,7 +136,7 @@ public class Matrix
     /// Приведение матрицы к диагональному виду
     /// </summary>
     /// <returns>Новая матрица - диагональное представление исходной матрицы</returns>
-    /// <exception cref="ArgumentException">Исключение, возникающее при попытке диагонализации не недиагонализируемой матрицы</exception>
+    /// <exception cref="ArgumentException">Исключение, возникающее при попытке диагонализации недиагонализируемой матрицы</exception>
     public Matrix Diagonalize()
     {
         if (!IsSymmetrical())
@@ -315,7 +315,7 @@ public class Matrix
     /// <summary>
     /// Вычисляет транспонированную матрицу
     /// </summary>
-    /// <returns>Транспинорванная матрица</returns>
+    /// <returns>Транспонированная матрица</returns>
     public Matrix Transpose()
     {
         var tr = new Matrix();
@@ -348,7 +348,7 @@ public class Matrix
     /// </summary>
     /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
     /// <param name="rows">Список строк, к которым применяется отображение</param>
-    /// <returns>Новая матрица с измененными столбцами</returns>
+    /// <returns>Новая матрица с изменёнными столбцами</returns>
     public Matrix SelectRows(Func<Fraction, Fraction> func, params int[] rows)
     {
         var copy = Copy();
@@ -361,7 +361,7 @@ public class Matrix
     /// </summary>
     /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
     /// <param name="row">Индекс строки, к которой применяется отображение</param>
-    /// <returns>Новая матрица с измененной строкой</returns>
+    /// <returns>Новая матрица с изменённой строкой</returns>
     public Matrix SelectRow(Func<Fraction, Fraction> func, int row) => SelectRows(func, row);
 
     /// <summary>
@@ -369,7 +369,7 @@ public class Matrix
     /// </summary>
     /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
     /// <param name="columns">Список столбцов, к которым применяется отображение</param>
-    /// <returns>Новая матрица с измененными столбцами</returns>
+    /// <returns>Новая матрица с изменёнными столбцами</returns>
     public Matrix SelectColumns(Func<Fraction, Fraction> func, params int[] columns)
     {
         var copy = Copy();
@@ -382,7 +382,7 @@ public class Matrix
     /// </summary>
     /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
     /// <param name="column">Индекс столбца, к которому применяется отображение</param>
-    /// <returns>Новая матрица с измененным столбцом</returns>
+    /// <returns>Новая матрица с изменённым столбцом</returns>
     public Matrix SelectColumn(Func<Fraction, Fraction> func, int column) => SelectColumns(func, column);
 
     /// <summary>
@@ -591,7 +591,7 @@ public class Matrix
     /// </summary>
     /// <param name="invMatrix">выходной параметр - найденная обратная матрица или null</param>
     /// <returns>логическое значение, показывающее, была ли найдена обратная матрица</returns>
-    public bool TryInverse(out Matrix invMatrix)
+    public bool TryInverse(out Matrix? invMatrix)
     {
         try
         {
@@ -720,7 +720,7 @@ public class Matrix
     }
 
     /// <summary>
-    /// Проверка матрицы на квадратность
+    /// Проверка, что матрица квадратная
     /// </summary>
     /// <returns>Логическое значение - является ли матрица квадратной или нет</returns>
     public bool IsSquare() => Rows == Columns;
@@ -945,7 +945,28 @@ public class Matrix
 
         return sb.ToString();
     }
-    
+
+    /// <summary>
+    /// Проверяет, что все элементы матрицы равны переданному элементу
+    /// </summary>
+    /// <param name="element"> Элемент для сравнения</param>
+    /// <returns> True, если все элементы матрицы равны element. False в обратном случае</returns>
+    public bool All(int element)
+    {
+        for (int i = 0; i < Rows; i++)
+        {
+            for (int j = 0; j < Columns; j++)
+            {
+                if (_data[i][j] != element)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     /// <summary>
     /// Единичная матрица заданного размера
     /// </summary>

@@ -6,12 +6,12 @@ public class EuclideanSpace : LinearSpace
     
     public EuclideanSpace(List<Matrix> vectors, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(vectors)
     {
-        _dotProduct = dotProduct ?? defaultDotProduct;
+        _dotProduct = dotProduct ?? DefaultDotProduct;
     }
 
     public EuclideanSpace(LinearSpace linearSpace, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(linearSpace.Basis)
     {
-        _dotProduct = dotProduct ?? defaultDotProduct;
+        _dotProduct = dotProduct ?? DefaultDotProduct;
     }
 
     public double GetLength(Matrix vector)
@@ -52,7 +52,7 @@ public class EuclideanSpace : LinearSpace
                 b -= newBasis[j] * (_dotProduct(newBasis[j], Basis[i]) / _dotProduct(newBasis[j], newBasis[j]));
             }
 
-            var flag0 = false;
+            /*var flag0 = false;
             for (int j = 0; j < b.Rows; j++)
             {
                 if (b[j, 0] != 0)
@@ -64,9 +64,9 @@ public class EuclideanSpace : LinearSpace
                 {
                     flag0 = true;
                 }
-            }
+            }*/
 
-            if (!flag0)
+            if (!b.All(0))
             {
                 newBasis.Add(b);
             }
@@ -75,7 +75,7 @@ public class EuclideanSpace : LinearSpace
         return new EuclideanSpace(newBasis, _dotProduct);
     }
 
-    private static readonly Func<Matrix, Matrix, Fraction> defaultDotProduct = (v1, v2) =>
+    private static readonly Func<Matrix, Matrix, Fraction> DefaultDotProduct = (v1, v2) =>
     {
         if (v1.Rows != v2.Rows)
             throw new ArgumentException("Unable to compute dot product of vectors with different dimensions");
