@@ -34,7 +34,7 @@ public class Fraction
         Simplify();
     }
 
-    public Fraction(long a = 1) : this(a, 1)
+    public Fraction(long a = 0) : this(a, 1)
     {
     }
 
@@ -42,7 +42,7 @@ public class Fraction
     {
         if (Denominator == 0)
         {
-            throw new ArgumentException("Denom is 0");
+            throw new ArgumentException("Denominator is 0");
         }
         if (Numerator == 0)
         {
@@ -129,8 +129,8 @@ public class Fraction
             long den;
             if (a[0].Contains("sqrt("))
             {
-                int aux = a[0].IndexOf("sqrt(");
-                int end = a[0].IndexOf(")");
+                int aux = a[0].IndexOf("sqrt(", StringComparison.Ordinal);
+                int end = a[0].IndexOf(")", StringComparison.Ordinal);
                 root = long.Parse(a[0][(aux + 5)..end]);
                 num *= aux == 0 ? 1 : long.Parse(a[0][..aux]);
             }
@@ -141,8 +141,8 @@ public class Fraction
 
             if (a[1].Contains("sqrt("))
             {
-                int aux = a[1].IndexOf("sqrt(");
-                int end = a[1].IndexOf(")");
+                int aux = a[1].IndexOf("sqrt(", StringComparison.Ordinal);
+                int end = a[1].IndexOf(")", StringComparison.Ordinal);
                 long tempRoot = long.Parse(a[1][(aux + 5)..end]);
                 root *= tempRoot;
                 den = aux == 0 ? 1 : long.Parse(a[1][..aux]);
@@ -162,8 +162,8 @@ public class Fraction
 
         if (s.Contains("sqrt("))
         {
-            int aux = s.IndexOf("sqrt(");
-            int end = s.IndexOf(")");
+            int aux = s.IndexOf("sqrt(", StringComparison.Ordinal);
+            int end = s.IndexOf(")", StringComparison.Ordinal);
             root = long.Parse(s[(aux + 5)..end]);
             num *= aux == 0 ? 1 : long.Parse(s[..aux]);
 
@@ -196,7 +196,6 @@ public class Fraction
             return a;
         if (a.Root != b.Root && a.Root != 0 && b.Root != 0)
             throw new RazrabDaunException("Cannot add two fractions with different radicals (not implemented).");
-        // Конректная проблема... Как в такой реализации складывать две дроби, у которых в числителе два разных корня?
         Fraction f = new Fraction(a.Numerator * b.Denominator + b.Numerator * a.Denominator,
             a.Denominator * b.Denominator, Math.Max(a.Root, b.Root));
         f.Simplify();

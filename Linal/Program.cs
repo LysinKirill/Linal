@@ -4,37 +4,19 @@ class Program
 {
     public static void Main(string[] args)
     {
-        List<Matrix> vectors = new List<Matrix>();
-        
-        for (int i = 0; i < 4; ++i)
-        {
-            vectors.Add(Matrix.ReadVector());
-        }
-        
-        var eSpace = new EuclideanSpace(vectors, (v1, v2) =>
-        {
-            var res = new Fraction(0);
-            for (int i = 0; i < v1.Rows; i++)
-            {
-                res += v1[i, 0] * v2[i, 0];
-            }
-        
-            return res;
-        });
-        
-        var nSpace = eSpace.Orthogonalize();
+        Matrix m = Matrix.E(5);
 
-        foreach (Matrix m in nSpace.Basis)
+        while (m.Rank() != 3)
         {
-            Console.WriteLine("Sus");
-            Console.WriteLine(m);
+            m = Matrix.GetRandIntMatrix(5, 5, -3, 3);
         }
-        Console.WriteLine("Amogus");
-        // Matrix m = new Matrix();
-        // m.Read();
-        //
-        // Console.WriteLine(Matrix.Reduce(m));
-        // Console.WriteLine(Matrix.Canonical(m));
+        
+        Console.WriteLine(m);
+        Console.WriteLine($"Rank(A) = {m.Rank()}");
+        Console.WriteLine(m * m.Transpose());
+        Console.WriteLine($"Rank(A * A^T) = {(m * m.Transpose()).Rank()}");
+        
+        Console.WriteLine((m*m.Transpose()).Canonical());
 
     }
 }

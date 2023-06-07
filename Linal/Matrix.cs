@@ -10,18 +10,30 @@ public class Matrix
 
     private int _maxS;
 
+    /// <summary>
+    /// Создает матрицу на основе зубчатого массива из дробей
+    /// </summary>
+    /// <param name="f">Зубчатый массив из дробей</param>
+    /// <exception cref="ArgumentException">Исключение, возникающее при попытке создания матрицы из зубчатого массива, не являющегося прямоугольным</exception>
     public Matrix(Fraction[][] f)
     {
+        if (!IsValidMatrixRepresentation(f))
+            throw new ArgumentException("The given jagged array is not rectangular.");
         Rows = f.Length;
         Columns = f[0].Length;
         _data = f;
         _maxS = GetMaxLength();
-
-        // Добавить проверку, что матрица прямоугольная?
     }
-
+    
+    /// <summary>
+    /// Создает матрицу на основе списка из списков дробей - строк матрицы
+    /// </summary>
+    /// <param name="fractionList">Список из списков дробей, которые будут строками новой матрицы</param>
+    /// <exception cref="ArgumentException">Исключение, возникающее при передаче в качестве параметра списка, который не соответствует прямоугольной матрице</exception>
     public Matrix(List<List<Fraction>> fractionList)
     {
+        if(!IsValidMatrixRepresentation(fractionList))
+            throw new ArgumentException("The given list does not represent a rectangular matrix.");
         Rows = fractionList.Count;
         Columns = fractionList[0].Count;
         _data = new Fraction[Rows][];
@@ -35,14 +47,23 @@ public class Matrix
             }
         }
     }
-
+    
+    /// <summary>
+    /// Конструктор без параметров - создает пустую матрицу размера 0 x 0
+    /// </summary>
     public Matrix()
     {
         Rows = 0;
         Columns = 0;
-        _data = null;
+        _data = Array.Empty<Fraction[]>();
     }
-
+    
+    /// <summary>
+    /// Конструктор принимающий размеры матрицы
+    /// </summary>
+    /// <param name="rows">количество строк в матрице</param>
+    /// <param name="columns">количество столбцов в матрице</param>
+    /// <exception cref="ArgumentException">Исключение, возникающее при попытке создать матрицу с неположительным числом строк или столбцов</exception>
     public Matrix(int rows, int columns)
     {
         if (rows <= 0 || columns <= 0)
@@ -53,11 +74,16 @@ public class Matrix
         for (int i = 0; i < Rows; ++i)
             _data[i] = new Fraction[Columns];
     }
-
+    
+    /// <summary>
+    /// Метод, осуществляющий копирование матрицы
+    /// </summary>
+    /// <returns>Новая матрица - копия данной</returns>
     public Matrix Copy()
     {
         var copy = new Matrix
         {
+            _maxS = _maxS,
             Rows = Rows,
             Columns = Columns,
             _data = new Fraction[Rows][]
@@ -73,6 +99,10 @@ public class Matrix
         return copy;
     }
 
+    /// <summary>
+    /// Проверка матрицы на диагональность
+    /// </summary>
+    /// <returns>Логическое значение - является матрица диагональной или нет</returns>
     public bool IsDiagonal()
     {
         for (int i = 0; i < Rows; ++i)
@@ -86,7 +116,11 @@ public class Matrix
 
         return true;
     }
-
+    
+    /// <summary>
+    /// Проверка матрицы на симметричность
+    /// </summary>
+    /// <returns>Логическое значение - является матрица симметричной или нет</returns>
     public bool IsSymmetrical()
     {
         if (!IsSquare())
@@ -98,9 +132,15 @@ public class Matrix
         return true;
     }
 
+    /// <summary>
+    /// Приведение матрицы к диагональному виду
+    /// </summary>
+    /// <returns>Новая матрица - диагональное представление исходной матрицы</returns>
+    /// <exception cref="ArgumentException">Исключение, возникающее при попытке диагонализации не недиагонализируемой матрицы</exception>
     public Matrix Diagonalize()
     {
         if (!IsSymmetrical())
+            // Является ли это необходимым условием?
             throw new ArgumentException("Matrix should be symmetrical");
 
         var m = Copy();
@@ -119,7 +159,7 @@ public class Matrix
                         m[col, j] -= k * m[i, col] * m[i, j];
                     }
 
-                    m[i, col] = new Fraction(0);
+                    m[i, col] = new Fraction();
                 }
             }
         }
@@ -128,41 +168,24 @@ public class Matrix
         for (int j = i + 1; j < m.Columns; ++j)
             if (i < j)
                 m[j, i] = m[i, j];
+
+        throw new NotImplementedException();
         return m;
     }
 
-    // public static Matrix Parse(string s)
-    // {
-    //     string[] lines = s.Split("\n");
-    //     int m = lines.Length;
-    //     int n = lines[0].Split(" ").Length;
-    //     Matrix a = new Matrix();
-    //     a._data = new Fraction[m, n];
-    //     a.Rows = m;
-    //     a.Columns = n;
-    //     for (int i = 0; i < m; i++)
-    //     {
-    //         string[] arr = lines[i].Split(" ");
-    //         for (int j = 0; j < n; j++)
-    //         {
-    //             a._data[i, j] = Fraction.Parse(arr[j]);
-    //         }
-    //     }
-    //
-    //     a._maxS = a.GetMaxLength();
-    //
-    //     return a;
-    // }
-
+    /// <summary>
+    /// Осуществляет считывание матрицы заданного размера из консоли
+    /// </summary>
+    /// <param name="m">Количество строк в считываемой матрице</param>
+    /// <param name="n">Количество столбцов в считываемой матрице</param>
     public void Read(int m, int n)
     {
-        (int, int) size = (m, n);
-        _data = new Fraction[size.Item1][];
-        for (int i = 0; i < size.Item1; i++)
+        _data = new Fraction[m][];
+        for (int i = 0; i < m; i++)
         {
-            _data[i] = new Fraction[size.Item2];
+            _data[i] = new Fraction[n];
             var s = Console.ReadLine()!.Split(" ");
-            for (int j = 0; j < size.Item2; j++)
+            for (int j = 0; j < n; j++)
                 _data[i][j] = Fraction.Parse(s[j]);
         }
 
@@ -170,12 +193,21 @@ public class Matrix
         Console.WriteLine();
     }
 
+    /// <summary>
+    /// Осуществляет считывание вектора из консоли
+    /// </summary>
+    /// <returns>Новый вектор</returns>
     public static Matrix ReadVector()
     {
-        List<List<Fraction>> rows = new() { Array.ConvertAll(Console.ReadLine().Split(), Fraction.Parse).ToList() };
+        List<List<Fraction>> rows = new() { Array.ConvertAll(Console.ReadLine()!.Split(), Fraction.Parse).ToList() };
         return new Matrix(rows).Transpose();
     }
 
+    /// <summary>
+    /// Составляет новую матрицу путем объединения (конкатенации) переданных матриц по столбцам
+    /// </summary>
+    /// <param name="matrices">Матрицы, которые необходимо объединить</param>
+    /// <returns>Новая матрица - результат конкатенации матриц по столбцам</returns>
     public static Matrix ConcatColumns(params Matrix[] matrices)
     {
         var commonRowCount = matrices[0].Rows;
@@ -199,6 +231,10 @@ public class Matrix
         return new Matrix(rows);
     }
 
+    /// <summary>
+    /// Представляет матрицу в виде набора вектор-столбцов
+    /// </summary>
+    /// <returns>Список из вектор-столбцов</returns>
     public List<Matrix> GetVectors()
     {
         var temp = Transpose();
@@ -222,6 +258,10 @@ public class Matrix
         return vectors;
     }
 
+    /// <summary>
+    /// Вычисляет ранг данной матрицы
+    /// </summary>
+    /// <returns>Ранг матрицы</returns>
     public int Rank()
     {
         var r = Reduce();
@@ -237,6 +277,9 @@ public class Matrix
         return 0;
     }
 
+    /// <summary>
+    /// Считывает матрицу из консоли
+    /// </summary>
     public void Read()
     {
         var s = Console.ReadLine()!.Split(" ");
@@ -255,11 +298,10 @@ public class Matrix
         Console.WriteLine();
     }
 
-    public void Write()
-    {
-        Console.WriteLine(this);
-    }
-
+    /// <summary>
+    /// Вычисляет максимальную длину символьного представления элементов матрицы
+    /// </summary>
+    /// <returns>Наибольшая длина символьного представления для элемента матрицы</returns>
     private int GetMaxLength()
     {
         var max = -1;
@@ -270,6 +312,10 @@ public class Matrix
         return max;
     }
 
+    /// <summary>
+    /// Вычисляет транспонированную матрицу
+    /// </summary>
+    /// <returns>Транспинорванная матрица</returns>
     public Matrix Transpose()
     {
         var tr = new Matrix();
@@ -285,6 +331,11 @@ public class Matrix
         return tr;
     }
 
+    /// <summary>
+    /// Создает новую матрицу путем применения отображения ко всем элементам матрицы
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <returns>Матрица, составленная из образов элементов под действием отображения</returns>
     public Matrix Select(Func<Fraction, Fraction> func)
     {
         var copy = Copy();
@@ -292,6 +343,12 @@ public class Matrix
         return copy;
     }
 
+    /// <summary>
+    /// Создает новую матрицу путем применения отображения к выбранным строкам текущей матрицы
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <param name="rows">Список строк, к которым применяется отображение</param>
+    /// <returns>Новая матрица с измененными столбцами</returns>
     public Matrix SelectRows(Func<Fraction, Fraction> func, params int[] rows)
     {
         var copy = Copy();
@@ -299,8 +356,20 @@ public class Matrix
         return copy;
     }
 
+    /// <summary>
+    /// Создает новую матрицу путем применения отображения к выбранной строке текущей матрицы
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <param name="row">Индекс строки, к которой применяется отображение</param>
+    /// <returns>Новая матрица с измененной строкой</returns>
     public Matrix SelectRow(Func<Fraction, Fraction> func, int row) => SelectRows(func, row);
 
+    /// <summary>
+    /// Создает новую матрицу путем применения отображения к выбранным столбцам текущей матрицы
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <param name="columns">Список столбцов, к которым применяется отображение</param>
+    /// <returns>Новая матрица с измененными столбцами</returns>
     public Matrix SelectColumns(Func<Fraction, Fraction> func, params int[] columns)
     {
         var copy = Copy();
@@ -308,8 +377,18 @@ public class Matrix
         return copy;
     }
 
+    /// <summary>
+    /// Создает новую матрицу путем применения отображения к выбранному столбцу текущей матрицы
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <param name="column">Индекс столбца, к которому применяется отображение</param>
+    /// <returns>Новая матрица с измененным столбцом</returns>
     public Matrix SelectColumn(Func<Fraction, Fraction> func, int column) => SelectColumns(func, column);
 
+    /// <summary>
+    /// Применяет отображение ко всем элементам матрицы (изменяет текущую матрицу)
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
     public void Apply(Func<Fraction, Fraction> func)
     {
         for (int i = 0; i < Rows; ++i)
@@ -317,7 +396,12 @@ public class Matrix
             _data[i][j] = func(_data[i][j]);
     }
 
-    // This method has not been tested yet
+    /// <summary>
+    /// Применяет отображение к элементам матрицы, удовлетворяющим булевой маске (изменяет текущую матрицу)
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <param name="filter">Булева матрица-маска, соответствующая тем элементам, к которым требуется применить отображение</param>
+    /// <exception cref="ArgumentException">Исключение, возникающее при попытке передать в качестве булевой маски матрицу с размерами, не соответствующими размерам данной матрицы</exception>
     public void Apply(Func<Fraction, Fraction> func, bool[][] filter)
     {
         if (Rows != filter.Length || Columns != filter[0].Length)
@@ -329,7 +413,11 @@ public class Matrix
                 _data[i][j] = func(_data[i][j]);
     }
 
-    // This method has not been tested yet
+    /// <summary>
+    /// Строит булеву матрицу-маску, соответствующую элементам, удовлетворяющим условию
+    /// </summary>
+    /// <param name="condition">Предикат φ на элементы матрицы φ: Fraction ⟼ bool</param>
+    /// <returns>Матрица-маска из булевых значений</returns>
     public bool[][] Filter(Predicate<Fraction> condition)
     {
         var filter = new bool[Rows][];
@@ -343,7 +431,11 @@ public class Matrix
         return filter;
     }
 
-    // This method has not been tested yet
+    /// <summary>
+    /// Строит булеву матрицу-маску, соответствующую элементам, удовлетворяющим условию на индексы
+    /// </summary>
+    /// <param name="checkPos">Условие на индексы элементов</param>
+    /// <returns>Матрица-маска из булевых значений</returns>
     public bool[][] Filter(Func<int, int, bool> checkPos)
     {
         var filter = new bool[Rows][];
@@ -357,6 +449,11 @@ public class Matrix
         return filter;
     }
 
+    /// <summary>
+    /// Применяет отображение к заданному набору строк матрицы (изменяет текущую матрицу)
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <param name="rows">Список строк, к которым применяется отображение</param>
     public void ApplyRows(Func<Fraction, Fraction> func, params int[] rows)
     {
         foreach (var i in rows)
@@ -364,8 +461,18 @@ public class Matrix
                 _data[i][j] = func(_data[i][j]);
     }
 
+    /// <summary>
+    /// Применяет отображение к заданной строке матрицы (изменяет текущую матрицу)
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <param name="row">Индекс строки, к которой применяется отображение</param>
     public void ApplyRow(Func<Fraction, Fraction> func, int row) => ApplyRows(func, row);
 
+    /// <summary>
+    /// Применяет отображение к заданному набору столбцов матрицы (изменяет текущую матрицу)
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <param name="columns">Список столбцов, к которым применяется отображение</param>
     public void ApplyColumns(Func<Fraction, Fraction> func, params int[] columns)
     {
         for (int i = 0; i < Rows; ++i)
@@ -373,18 +480,26 @@ public class Matrix
                 _data[i][j] = func(_data[i][j]);
     }
 
+    /// <summary>
+    /// Применяет отображение к заданному столбцу матрицы (изменяет текущую матрицу)
+    /// </summary>
+    /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
+    /// <param name="column">Индекс столбца, к которому применяется отображение</param>
     public void ApplyColumn(Func<Fraction, Fraction> func, int column) => ApplyRows(func, column);
 
-    // This method has not been tested yet
+    /// <summary>
+    /// Приводит матрицу к ступенчатому виду
+    /// </summary>
+    /// <returns>Новая матрица в ступенчатом виде</returns>
     public Matrix Reduce()
     {
         var m = Copy();
 
 
         var shift = 0;
-        for (int i = 0; i < m.Rows; ++i)
+        for (int i = 0; i < m.Rows && i < Columns; ++i)
         {
-            var inverse = new Fraction();
+            Fraction inverse;
             if (i < m.Columns)
             {
                 int aux = i - shift;
@@ -401,6 +516,7 @@ public class Matrix
                 m.ApplyRow(x => x * inverse, i - shift);
             }
 
+
             for (int k = i - shift + 1; k < m.Rows; ++k)
             {
                 if (m[k, i] == 0)
@@ -414,7 +530,10 @@ public class Matrix
         return m;
     }
 
-    // This method has not been tested yet
+    /// <summary>
+    /// Приведение данной матрицы к её каноническому виду
+    /// </summary>
+    /// <returns>Новая матрица в каноническом виде</returns>
     public Matrix Canonical()
     {
         var m = Reduce();
@@ -432,6 +551,7 @@ public class Matrix
                 Fraction inverse = 1 / m[row, aux];
                 m.ApplyRow(x => x * inverse, row);
             }
+
             for (int i = 0; i < row; i++)
             {
                 if (m[i, aux] == 0)
@@ -445,11 +565,10 @@ public class Matrix
 
 
     /// <summary>
-    /// Calculates and returns adjugate matrix for matrix a
+    /// Вычисляет союзную к текущей матрицу
     /// </summary>
-    /// <param name="a">Square matrix a</param>
-    /// <returns>adjugate matrix for a</returns>
-    /// <exception cref="Exception"></exception>
+    /// <returns>Матрица, союзная к данной</returns>
+    /// <exception cref="Exception">Исключение, возникающее при попытке вычислить союзную матрицу для не квадратной матрицы</exception>
     public Matrix Adj()
     {
         if (!IsSquare())
@@ -468,12 +587,17 @@ public class Matrix
         return new Matrix(arr).Transpose();
     }
 
+    /// <summary>
+    /// Осуществляет попытку вычисление матрицы, обратной к данной, записывает обратную матрицу или null (в случае её отсутствия) в выходной параметр invMatrix
+    /// </summary>
+    /// <param name="invMatrix">выходной параметр - найденная обратная матрица или null</param>
+    /// <returns>логическое значение, показывающее, была ли найдена обратная матрица</returns>
     public bool TryInverse(out Matrix invMatrix)
     {
         var det = Det();
         if (det == 0)
         {
-            invMatrix = null;
+            invMatrix = null!;
             return false;
         }
 
@@ -481,26 +605,30 @@ public class Matrix
         return true;
     }
 
+    /// <summary>
+    /// Вычисляет матрицу, обратную к данной
+    /// </summary>
+    /// <returns>Новая матрица - A^(-1)</returns>
+    /// <exception cref="ArgumentException">Исключение, возникающее при попытке вычислить обратную матрицу для вырожденной матрицы</exception>
     public Matrix Inverse()
     {
         var det = Det();
         if (det == 0)
-            throw new Exception("The matrix is degenerate, thus it has no inverse");
+            throw new ArgumentException("The matrix is degenerate, thus it has no inverse");
         return (1 / det) * Adj();
     }
 
     /// <summary>
-    /// Calculates Co-factor matrix
+    /// Вычисляет алгебраическое дополнение элемента [A]ij данной матрицы
     /// </summary>
-    /// <param name="a">square matrix A</param>
-    /// <param name="i">omitted row</param>
-    /// <param name="j">omitted column</param>
-    /// <returns>Co-factor matrix for A</returns>
-    /// <exception cref="Exception"></exception>
+    /// <param name="i">индекс строки элемента [A]ij</param>
+    /// <param name="j">индекс столбца элемента [A]ij</param>
+    /// <returns>Алгебраическое дополнение элемента [A]ij</returns>
+    /// <exception cref="IndexOutOfRangeException">Исключение, возникающее при попытке вычислить алгебраическое дополнение элемента, не принадлежащего матрице</exception>
     public Fraction A(int i, int j)
     {
         if (i >= Rows || j >= Columns)
-            throw new Exception("Cannot get such algebraic complement");
+            throw new IndexOutOfRangeException("Cannot get such algebraic complement");
         if ((i + j) % 2 == 0)
         {
             return Minor(i, j).Det();
@@ -508,11 +636,18 @@ public class Matrix
 
         return (-1) * Minor(i, j).Det();
     }
-
+    
+    /// <summary>
+    /// Вычисление дополняющего минора для данной матрицы и заданного элемента
+    /// </summary>
+    /// <param name="i">Индекс исключаемой строки</param>
+    /// <param name="j">Индекс исключаемого столбца</param>
+    /// <returns>Матрица - дополняющий минор элемента [A]ij данной матрицы</returns>
+    /// <exception cref="IndexOutOfRangeException">Исключение, возникающее при попытке вычисления дополняющего минора элемента, не принадлежащего матрице</exception>
     public Matrix Minor(int i, int j)
     {
         if (i >= Rows || j >= Columns)
-            throw new Exception("Cannot get such Minor");
+            throw new IndexOutOfRangeException("Cannot get such Minor");
         var f = new Fraction[Rows - 1][];
         for (int t = 0; t < Rows - 1; ++t)
             f[t] = new Fraction[Columns - 1];
@@ -537,7 +672,12 @@ public class Matrix
 
         return new Matrix(f);
     }
-
+    
+    /// <summary>
+    /// Вычисление определителя данной матрицы
+    /// </summary>
+    /// <returns>Рациональное число - определитель данной матрицы</returns>
+    /// <exception cref="Exception">Исключение, возникающее при попытке вычисления определителя для неквадратной матрицы</exception>
     public Fraction Det()
     {
         if (!IsSquare())
@@ -551,7 +691,7 @@ public class Matrix
                 return _data[0][0] * _data[1][1] - _data[0][1] * _data[1][0];
         }
 
-        var sum = new Fraction(0);
+        var sum = new Fraction();
         //  разложение по 1-ой строке
         for (int j = 0; j < Columns; j++)
         {
@@ -561,31 +701,46 @@ public class Matrix
         return sum;
     }
 
+    /// <summary>
+    /// Вычисление следа матрицы - Tr(A)
+    /// </summary>
+    /// <returns>Рациональное число - след данной матрицы</returns>
+    /// <exception cref="ArgumentException">Исключение, возникающее при попытке вычисления следа для неквадратной матрицы</exception>
     public Fraction Trace()
     {
         if (!IsSquare())
             throw new ArgumentException("Trace is only defined for square matrices");
 
-        var sum = new Fraction(0);
+        var sum = new Fraction();
 
         for (int i = 0; i < Columns; ++i)
             sum += _data[i][i];
         return sum;
     }
 
+    /// <summary>
+    /// Проверка матрицы на квадратность
+    /// </summary>
+    /// <returns>Логическое значение - является ли матрица квадратной или нет</returns>
     public bool IsSquare() => Rows == Columns;
 
+    /// <summary>
+    /// Смена местами двух строк матрицы
+    /// </summary>
+    /// <param name="row1">Индекс первой строки</param>
+    /// <param name="row2">Индекс второй строки</param>
     public void SwapRows(int row1, int row2)
     {
-        // Сделано
-        // Можно сделать нормальную реализацию, т.к. массив теперь зубчатый
         if (row1 == row2)
             return;
         (_data[row1], _data[row2]) = (_data[row2], _data[row1]);
-        //for (int i = 0; i < Columns; i++)
-        //    (_data[row1][i], _data[row2][i]) = (_data[row2][i], _data[row1][i]);
     }
 
+    /// <summary>
+    /// Смена местами двух столбцов матрицы
+    /// </summary>
+    /// <param name="col1">Индекс первого столбца</param>
+    /// <param name="col2">Индекс второго столбца</param>
     public void SwapColumns(int col1, int col2)
     {
         if (col1 == col2)
@@ -615,7 +770,7 @@ public class Matrix
             c._data[i] = new Fraction[c.Columns];
             for (int j = 0; j < b.Columns; j++)
             {
-                var s = new Fraction(0);
+                var s = new Fraction();
                 for (int k = 0; k < a.Columns; k++)
                     s += a._data[i][k] * b._data[k][j];
                 c._data[i][j] = s;
@@ -625,7 +780,7 @@ public class Matrix
         c._maxS = c.GetMaxLength();
         return c;
     }
-    
+
     public static Matrix operator *(Matrix a, int num)
     {
         var c = new Matrix
@@ -644,9 +799,9 @@ public class Matrix
         c._maxS = c.GetMaxLength();
         return c;
     }
-    
+
     public static Matrix operator *(int num, Matrix a) => a * num;
-    
+
     public static Matrix operator *(Matrix a, Fraction num)
     {
         var c = new Matrix
@@ -713,17 +868,23 @@ public class Matrix
             throw new ArgumentException("Cannot raise non-square matrix to a power");
         if (power == 0)
             return E(matrix.Columns);
-        
+
         // What is the meaning of negative power other than -1?
         if (power < 0)
             return (matrix ^ Math.Abs(power)).Inverse();
-        
+
         if (power % 2 == 1)
             return matrix * (matrix ^ (power - 1));
 
         return (matrix * matrix) ^ (power / 2);
     }
 
+    /// <summary>
+    /// Прибавление одной строки матрицы, умноженной на коэффициент, к другой
+    /// </summary>
+    /// <param name="i">Индекс строки, к которой прибавляется другая строка</param>
+    /// <param name="j">Индекс прибавляемой строки</param>
+    /// <param name="alpha">Коэффициент, но который умножается прибавляемая строка</param>
     public void AddToRow(int i, int j, Fraction alpha)
     {
         for (int k = 0; k < Columns; k++)
@@ -734,8 +895,14 @@ public class Matrix
         _maxS = GetMaxLength();
     }
     
+    /// <summary>
+    /// Прибавление одной строки матрицы к другой
+    /// </summary>
+    /// <param name="i">Индекс строки, к которой прибавляется другая строка</param>
+    /// <param name="j">Индекс прибавляемой строки</param>
     public void AddToRow(int i, int j) => AddToRow(i, j, new Fraction(1));
 
+    // Возможно стоит как-нибудь перегрузить Equals() и GetHashCode()
     public static bool operator ==(Matrix a, Matrix b)
     {
         if (!((a.Rows == b.Rows) && (a.Columns == b.Columns)))
@@ -756,28 +923,10 @@ public class Matrix
 
     public static bool operator !=(Matrix a, Matrix b) => !(a == b);
 
-    // Удалить бесполезный метод?
-    /*public static Matrix Pow(Matrix a, int pow)
-    {
-        if (!a.IsSquare())
-            throw new Exception("Wrong matrix dimensions");
-        if (pow == 0)
-            return Matrix.E(a.Columns); // ? check
-
-        Fraction[][] d = new Fraction[a.Columns][];
-        for (int i = 0; i < a.Columns; i++)
-        {
-            d[i] = new Fraction[a.Columns];
-            for (int j = 0; j < a.Columns; j++)
-                d[i][j] = a._data[i][j];
-        }
-
-        Matrix m = new Matrix(d);
-        for (int i = 1; i < pow; i++)
-            m *= a;
-        return m;
-    }*/
-
+    /// <summary>
+    /// Создает строковое представление матрицы
+    /// </summary>
+    /// <returns>Строковое представление данной матрицы</returns>
     public override string ToString()
     {
         var sb = new StringBuilder();
@@ -795,7 +944,12 @@ public class Matrix
 
         return sb.ToString();
     }
-
+    
+    /// <summary>
+    /// Единичная матрица заданного размера
+    /// </summary>
+    /// <param name="n">Размер единичной матрицы</param>
+    /// <returns>Единичная матрица</returns>
     public static Matrix E(int n)
     {
         var a = new Fraction[n][];
@@ -806,12 +960,20 @@ public class Matrix
                 if (p == l)
                     a[p][l] = new Fraction(1);
                 else
-                    a[p][l] = new Fraction(0);
+                    a[p][l] = new Fraction();
         }
 
         return new Matrix(a);
     }
 
+    /// <summary>
+    /// Матричная единица Eij
+    /// </summary>
+    /// <param name="n">Размер матрицы</param>
+    /// <param name="i">Строка единичного элемента</param>
+    /// <param name="j">Столбец единичного элемента</param>
+    /// <returns>Матричная единица Eij</returns>
+    /// <exception cref="IndexOutOfRangeException">Исключение, возникающее при попытке создать матричную единицу, которая не принадлежит матрице n x n</exception>
     public static Matrix Eij(int n, int i, int j)
     {
         if (i >= n || j >= n)
@@ -821,38 +983,69 @@ public class Matrix
         {
             a[p] = new Fraction[n];
             for (int l = 0; l < n; l++)
-                a[p][l] = new Fraction(0);
+                a[p][l] = new Fraction();
         }
+
         a[i][j] = new Fraction(1);
         return new Matrix(a);
     }
-
+    
+    /// <summary>
+    /// Матрица элементарного преобразования, соответствующая замене строк местами
+    /// </summary>
+    /// <param name="n">Размер матрицы</param>
+    /// <param name="i">Индекс первой строки</param>
+    /// <param name="j">Индекс второй строки</param>
+    /// <returns>Матрица элементарного преобразования</returns>
     public static Matrix ESwap(int n, int i, int j)
     {
         var m = E(n);
-        m._data[i][i] = new Fraction(0);
+        m._data[i][i] = new Fraction();
         m._data[i][j] = new Fraction(1);
 
-        m._data[j][j] = new Fraction(0);
+        m._data[j][j] = new Fraction();
         m._data[j][i] = new Fraction(1);
         return m;
     }
 
-    public static Matrix EMultRow(int n, int i, Fraction p)
-    {
-        var m = Matrix.E(n);
-        m._data[i][i] = p;
-        return m;
-    }
-
-
-    public static Matrix EAddRow(int n, int i, int j, int k)
+    /// <summary>
+    /// Матрица элементарного преобразования, соответствующая умножению заданной строки на коэффициент
+    /// </summary>
+    /// <param name="n">Размер матрицы</param>
+    /// <param name="i">Индекс изменяемой строки</param>
+    /// <param name="f">Коэффициент, на который умножается строка</param>
+    /// <returns>Матрица элементарного преобразования</returns>
+    /// <exception cref="ArgumentException">Исключение, возникающее при попытке создать матрицы элементарного преобразования для умножения строки на 0</exception>
+    public static Matrix EMultRow(int n, int i, Fraction f)
     {
         var m = E(n);
-        m._data[i][j] = new Fraction(k);
+        m._data[i][i] = f == 0 ? throw new ArgumentException("Multiplying a row by 0 is not an elementary row operation") : f;
         return m;
     }
-
+    
+    /// <summary>
+    /// Матрица элементарного преобразования, соответствующая прибавлению строки, умноженной на константу к другой строке 
+    /// </summary>
+    /// <param name="n">Размер матрицы</param>
+    /// <param name="i">Индекс первой строки (той, к которой прибавляют)</param>
+    /// <param name="j">Индекс второй строки (той, которую прибавляют)</param>
+    /// <param name="f">Коэффициент, на который умножается вторая строка</param>
+    /// <returns>Матрица элементарного преобразования</returns>
+    public static Matrix EAddRow(int n, int i, int j, Fraction f)
+    {
+        var m = E(n);
+        m._data[i][j] = f;
+        return m;
+    }
+    
+    /// <summary>
+    /// Создает случайную матрицу заданного размера, где элементы являются целыми числами, лежащими в заданном диапазоне
+    /// </summary>
+    /// <param name="rows">Количество строк в создаваемой матрице</param>
+    /// <param name="columns">Количество столбцов в создаваемой матрице</param>
+    /// <param name="intervalStart">Минимальное возможное значение для целого числа (включительно)</param>
+    /// <param name="intervalEnd">Максимальное возможное значение для целого числа (включительно)</param>
+    /// <returns></returns>
     public static Matrix GetRandIntMatrix(int rows, int columns, int intervalStart, int intervalEnd)
     {
         var rand = new Random();
@@ -868,8 +1061,12 @@ public class Matrix
 
         return new Matrix(arr);
     }
-
-
+    
+    /// <summary>
+    /// Метод, осуществляющий выбор столбцов матрицы по индексу
+    /// </summary>
+    /// <param name="f">Предикат φ: int ⟼ bool для выбора столбцов матрицы по индексу</param>
+    /// <returns>Новая матрица из выбранных столбцов</returns>
     public Matrix TakeColumns(Predicate<int> f)
     {
         List<List<Fraction>> rows = new();
@@ -887,8 +1084,18 @@ public class Matrix
 
         return new Matrix(rows);
     }
-
-    public static Matrix GetRandRationalMatrix(int rows, int columns, long intervalStart, long intervalEnd, long maxDenominator)
+    
+    /// <summary>
+    /// Создает случайную матрицу заданного размера, где элементы являются дробями, лежащими в заданном диапазоне, знаменатель которых не превосходит заданного числа (он является натуральным числом)
+    /// </summary>
+    /// <param name="rows">Количество строк в создаваемой матрице</param>
+    /// <param name="columns">Количество столбцов в создаваемой матрице</param>
+    /// <param name="intervalStart">Минимальное возможное значение для дроби (включительно)</param>
+    /// <param name="intervalEnd">Максимальное возможное значение для дроби (исключительно)</param>
+    /// <param name="maxDenominator">Максимальное возможное значение для знаменателя дроби (включительно). Знаменатель является числом от 1 до N</param>
+    /// <returns>Матрица из случайных дробных значений</returns>
+    public static Matrix GetRandRationalMatrix(int rows, int columns, long intervalStart, long intervalEnd,
+        long maxDenominator)
     {
         var rand = new Random();
         var arr = new Fraction[rows][];
@@ -897,15 +1104,39 @@ public class Matrix
             arr[i] = new Fraction[columns];
             for (int j = 0; j < columns; j++)
             {
-                arr[i][j] = new Fraction(rand.NextInt64(intervalStart, intervalEnd + 1), rand.NextInt64(1, maxDenominator + 1));
+                arr[i][j] = new Fraction(rand.NextInt64(intervalStart, intervalEnd + 1),
+                    rand.NextInt64(1, maxDenominator + 1));
             }
         }
 
         return new Matrix(arr);
     }
 
-    public static Matrix SolveForX()
+    /// <summary>
+    /// Проверка на то, является ли зубчатый массив из дробей корректным представлением прямоугольной матрицы
+    /// </summary>
+    /// <param name="f">Зубчатый массив из дробей для проверки</param>
+    /// <returns>Логическое значение, показывающее является ли переданный аргумент корректным представлением матрицы</returns>
+    private bool IsValidMatrixRepresentation(Fraction[][] f)
     {
-        throw new NotImplementedException();
+        int firstRowLength = f[0].Length;
+        for(int i = 1; i < f.Length; ++i)
+            if (f[i].Length != firstRowLength)
+                return false;
+        return true;
+    }
+    
+    /// <summary>
+    /// Проверка на то, является ли список из списков дробей корректным представлением прямоугольной матрицы
+    /// </summary>
+    /// <param name="f">Список из списков дробей для проверки</param>
+    /// <returns>Логическое значение, показывающее является ли переданный аргумент корректным представлением матрицы</returns>
+    private bool IsValidMatrixRepresentation(List<List<Fraction>> f)
+    {
+        int firstRowLength = f[0].Count;
+        for(int i = 1; i < f.Count; ++i)
+            if (f[i].Count != firstRowLength)
+                return false;
+        return true;
     }
 }
