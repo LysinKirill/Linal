@@ -1185,6 +1185,6 @@ public class Matrix
             Fraction inverse = aux1 * aux2;
             Q.ApplyColumn(x => x * inverse, i);
         }
-        return (Q, Q.Inverse() * this);
+        return (Q, Q.Transpose() * this);
     }
 }
