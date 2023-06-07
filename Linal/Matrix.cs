@@ -485,7 +485,7 @@ public class Matrix
     /// </summary>
     /// <param name="func">Применяемое отображение φ: Fraction ⟼ Fraction</param>
     /// <param name="column">Индекс столбца, к которому применяется отображение</param>
-    public void ApplyColumn(Func<Fraction, Fraction> func, int column) => ApplyRows(func, column);
+    public void ApplyColumn(Func<Fraction, Fraction> func, int column) => ApplyColumns(func, column);
 
     /// <summary>
     /// Приводит матрицу к ступенчатому виду
@@ -1160,5 +1160,31 @@ public class Matrix
             if (f[i].Count != firstRowLength)
                 return false;
         return true;
+    }
+    
+    //  Decompositions
+
+    /// <summary>
+    /// Находит QR-разложение данной матрицы
+    /// </summary>
+    /// <returns>Пара матриц:  Q - ортогональная матрица; R - верхнетреугольная матрица</returns>
+    public (Matrix Q, Matrix R) QR()
+    {
+        if (Det() == 0)
+            throw new ArgumentException("Cannot perform a QR decomposition on a degenerate matrix");
+        var E = new EuclideanSpace(GetVectors());
+        Matrix Q = E.Orthogonalize().MatrixBasis;
+        for (int i = 0; i < Q.Columns; ++i)
+        {
+            Fraction sqrSum = new();
+            for (int j = 0; j < Q.Rows; ++j)
+                sqrSum += Q[j, i] * Q[j, i];
+            Fraction aux1 = Fraction.Inverse(new(1, 1, sqrSum.Numerator));
+            Fraction aux2 = new(1, 1, sqrSum.Denominator);
+
+            Fraction inverse = aux1 * aux2;
+            Q.ApplyColumn(x => x * inverse, i);
+        }
+        return (Q, Q.Inverse() * this);
     }
 }
