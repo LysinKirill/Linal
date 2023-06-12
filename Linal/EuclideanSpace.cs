@@ -50,6 +50,15 @@ public class EuclideanSpace : LinearSpace
     public Fraction Gramian(List<Matrix> vectors) => Gram(vectors).Det();
 
     public double GetVolume(List<Matrix> vectors) => Math.Sqrt(Gramian(vectors).GetDouble());
+
+    public Fraction DistSqr(Matrix vector)
+    {
+        List<Matrix> vectors = Basis.Select(x => x).ToList();
+        vectors.Add(vector);
+        return Gramian(vectors) / Gramian();
+    }
+
+    public double Dist(Matrix vector) => Math.Sqrt(DistSqr(vector).GetDouble());
     
     public EuclideanSpace Orthogonalize()
     {
