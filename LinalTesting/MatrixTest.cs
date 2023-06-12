@@ -12,6 +12,39 @@ public class MatrixTest
     }
     
     [Fact]
+    [Trait("Category", "Operator(+)")]
+    public void OperatorPlusTest1()
+    {
+        var m1 = new Matrix(new[]
+        {
+            new Fraction[] { 7, 0, 3 },
+            new Fraction[] { 13, 2, 7 },
+            new Fraction[] { -14, 0, -6 },
+        });
+        
+        var m2 = new Matrix(new[]
+        {
+            new Fraction[] { 5, -5, -3 },
+            new Fraction[] { 3, -3, -2 },
+            new Fraction[] { 2, -2, -1 },
+        });
+        
+        var expectedRes = new Matrix(new[]
+        {
+            new Fraction[] { 12, -5, 0 },
+            new Fraction[] { 16, -1, 5 },
+            new Fraction[] { -12, -2, -7 },
+        });
+
+        var res = m1 + m2;
+
+        if (res != expectedRes)
+        {
+            throw new Exception($"Input A:\n{m1}\nInput B:\n{m2}\nExpected:\n{expectedRes}\nWas:\n{res}");
+        }
+    }
+    
+    [Fact]
     [Trait("Category", "RankMethod")]
     public void RankTest1()
     {

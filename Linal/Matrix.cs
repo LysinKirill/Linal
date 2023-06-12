@@ -4,9 +4,9 @@ namespace Linal;
 
 public class Matrix
 {
-    private Fraction[][] _data;
-    public int Rows { get; private set; }
-    public int Columns { get; private set; }
+    protected Fraction[][] _data;
+    public int Rows => _data.Length;
+    public int Columns => Rows == 0 ? 0 : _data[0].Length;
 
     private int _maxS;
 
@@ -19,8 +19,6 @@ public class Matrix
     {
         if (!IsValidMatrixRepresentation(f))
             throw new ArgumentException("The given jagged array is not rectangular.");
-        Rows = f.Length;
-        Columns = f[0].Length;
         _data = f;
         _maxS = GetMaxLength();
     }
@@ -34,13 +32,11 @@ public class Matrix
     {
         if(!IsValidMatrixRepresentation(fractionList))
             throw new ArgumentException("The given list does not represent a rectangular matrix.");
-        Rows = fractionList.Count;
-        Columns = fractionList[0].Count;
-        _data = new Fraction[Rows][];
+        _data = new Fraction[fractionList.Count][];
 
         for (int i = 0; i < Rows; ++i)
         {
-            _data[i] = new Fraction[Columns];
+            _data[i] = new Fraction[fractionList[0].Count];
             for (int j = 0; j < Columns; ++j)
             {
                 _data[i][j] = fractionList[i][j];
@@ -53,8 +49,6 @@ public class Matrix
     /// </summary>
     public Matrix()
     {
-        Rows = 0;
-        Columns = 0;
         _data = Array.Empty<Fraction[]>();
     }
     
@@ -68,8 +62,6 @@ public class Matrix
     {
         if (rows <= 0 || columns <= 0)
             throw new ArgumentException("Rows and columns of matrix have to be positive integers");
-        Rows = rows;
-        Columns = columns;
         _data = new Fraction[rows][];
         for (int i = 0; i < Rows; ++i)
             _data[i] = new Fraction[Columns];
@@ -84,13 +76,11 @@ public class Matrix
         var copy = new Matrix
         {
             _maxS = _maxS,
-            Rows = Rows,
-            Columns = Columns,
             _data = new Fraction[Rows][]
         };
         for (int i = 0; i < copy.Rows; ++i)
         {
-            copy._data[i] = new Fraction[copy.Columns];
+            copy._data[i] = new Fraction[Columns];
             for (int j = 0; j < copy.Columns; ++j)
                 copy._data[i][j] = new Fraction(_data[i][j]);
         }
@@ -285,7 +275,6 @@ public class Matrix
         var s = Console.ReadLine()!.Split(" ");
         var size = (int.Parse(s[0]), int.Parse(s[1]));
         _data = new Fraction[size.Item1][];
-        (Rows, Columns) = size;
         for (int i = 0; i < size.Item1; i++)
         {
             _data[i] = new Fraction[size.Item2];
@@ -316,14 +305,15 @@ public class Matrix
     /// Вычисляет транспонированную матрицу
     /// </summary>
     /// <returns>Транспонированная матрица</returns>
-    public Matrix Transpose()
+    public virtual Matrix Transpose()
     {
-        var tr = new Matrix();
-        (tr.Rows, tr.Columns) = (Columns, Rows);
-        tr._data = new Fraction[tr.Rows][];
+        var tr = new Matrix
+        {
+            _data = new Fraction[Columns][]
+        };
         for (int i = 0; i < tr.Rows; i++)
         {
-            tr._data[i] = new Fraction[tr.Columns];
+            tr._data[i] = new Fraction[Rows];
             for (int j = 0; j < tr.Columns; j++)
                 tr._data[i][j] = _data[j][i];
         }
@@ -547,7 +537,7 @@ public class Matrix
 
             if (m[row, aux] != 1)
             {
-                Fraction inverse = 1 / m[row, aux];
+                var inverse = 1 / m[row, aux];
                 m.ApplyRow(x => x * inverse, row);
             }
 
@@ -762,13 +752,11 @@ public class Matrix
             throw new ArgumentException("Неверные размерности");
         var c = new Matrix
         {
-            Rows = a.Rows,
-            Columns = b.Columns,
             _data = new Fraction[a.Rows][]
         };
         for (int i = 0; i < a.Rows; i++)
         {
-            c._data[i] = new Fraction[c.Columns];
+            c._data[i] = new Fraction[b.Columns];
             for (int j = 0; j < b.Columns; j++)
             {
                 var s = new Fraction();
@@ -786,8 +774,6 @@ public class Matrix
     {
         var c = new Matrix
         {
-            Rows = a.Rows,
-            Columns = a.Columns,
             _data = new Fraction[a.Rows][]
         };
         for (int i = 0; i < c.Rows; i++)
@@ -807,8 +793,6 @@ public class Matrix
     {
         var c = new Matrix
         {
-            Rows = a.Rows,
-            Columns = a.Columns,
             _data = new Fraction[a.Rows][]
         };
         for (int i = 0; i < c.Rows; i++)
@@ -830,13 +814,14 @@ public class Matrix
     public static Matrix operator +(Matrix a, Matrix b)
     {
         if (!((a.Rows == b.Rows) & (a.Columns == b.Columns)))
-            throw new Exception();
-        var c = new Matrix();
-        (c.Rows, c.Columns) = (a.Rows, a.Columns);
-        c._data = new Fraction[c.Rows][];
+            throw new ArgumentException("Incorrect dimensions");
+        var c = new Matrix
+        {
+            _data = new Fraction[a.Rows][]
+        };
         for (int i = 0; i < c.Rows; i++)
         {
-            c._data[i] = new Fraction[c.Columns];
+            c._data[i] = new Fraction[a.Columns];
             for (int j = 0; j < c.Columns; j++)
                 c._data[i][j] = a._data[i][j] + b._data[i][j];
         }
@@ -844,24 +829,10 @@ public class Matrix
         c._maxS = c.GetMaxLength();
         return c;
     }
+    
+    public static Matrix operator -(Matrix matrix) => matrix.Select(fraction => -fraction);
 
-    public static Matrix operator -(Matrix a, Matrix b)
-    {
-        if (!((a.Rows == b.Rows) & (a.Columns == b.Columns)))
-            throw new Exception();
-        var c = new Matrix();
-        (c.Rows, c.Columns) = (a.Rows, a.Columns);
-        c._data = new Fraction[c.Rows][];
-        for (int i = 0; i < c.Rows; i++)
-        {
-            c._data[i] = new Fraction[c.Columns];
-            for (int j = 0; j < c.Columns; j++)
-                c._data[i][j] = a._data[i][j] - b._data[i][j];
-        }
-
-        c._maxS = c.GetMaxLength();
-        return c;
-    }
+    public static Matrix operator -(Matrix a, Matrix b) => a + -b;
 
     public static Matrix operator ^(Matrix matrix, int power)
     {
