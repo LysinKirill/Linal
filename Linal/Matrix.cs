@@ -262,6 +262,9 @@ public class Matrix
     
     public static Matrix ConcatVectors(params Vector[] vectors)
     {
+        if (vectors.Length == 0)
+            return new Matrix();
+        
         var commonRowCount = vectors[0].Rows;
 
         List<List<Fraction>> rows = new();

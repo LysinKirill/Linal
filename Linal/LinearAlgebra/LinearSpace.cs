@@ -11,6 +11,17 @@ public class LinearSpace
         Basis = GetBasis(vectors);
         MatrixBasis = Matrix.ConcatVectors(Basis.ToArray());
     }
+
+    public LinearSpace(int n)
+    {
+        Basis = new();
+        for (int i = 0; i < n; ++i)
+        {
+            Basis.Add(new Vector(n, 0));
+            Basis[^1][i] = 1;
+        }
+        MatrixBasis = Matrix.ConcatVectors(Basis.ToArray());
+    }
     
     public LinearSpace(Matrix basisMatrix)
     {

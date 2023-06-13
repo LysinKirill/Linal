@@ -121,7 +121,7 @@ class Program
         };
         
 
-        Task1(data["Kirill"].task1);
+        Task1(data["Maksim"].task1);
     }
 
     static void Task1((List<Vector> v1, List<Vector> v2) v)
@@ -135,8 +135,8 @@ class Program
         Matrix res = c.Canonical().TakeColumns(x => x >= 4).Transpose();
         Console.WriteLine($"\nA (матрица линейного оператора) = \n{res}\n");
 
-        LinearSpace l1 = new LinearSpace(v.v1);
-        LinearSpace l2 = new LinearSpace(v.v2);
+        LinearSpace l1 = new LinearSpace(4);
+        LinearSpace l2 = new LinearSpace(4);
 
         Console.WriteLine($"Канонический вид A: \n {res.Canonical()}");
         LinearOperator A = new LinearOperator(l1, l2, res);
