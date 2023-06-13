@@ -141,6 +141,11 @@ public class Vector : Matrix
         return new Vector(temp.GetColumn(0));
     }
 
+    public static Vector ReadVector()
+    {
+        return new Vector(Array.ConvertAll(Console.ReadLine()!.Split(), Fraction.Parse).ToList());
+    }
+    
     public Fraction this[int id]
     {
         get => IsVertical ? _data[id][0] : _data[0][id];

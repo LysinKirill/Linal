@@ -222,15 +222,15 @@ public class Matrix
         Console.WriteLine();
     }
 
-    /// <summary>
-    /// Осуществляет считывание вектора из консоли
-    /// </summary>
-    /// <returns>Новый вектор</returns>
-    public static Matrix ReadVector()
-    {
-        List<List<Fraction>> rows = new() { Array.ConvertAll(Console.ReadLine()!.Split(), Fraction.Parse).ToList() };
-        return new Matrix(rows).Transpose();
-    }
+    // /// <summary>
+    // /// Осуществляет считывание вектора из консоли
+    // /// </summary>
+    // /// <returns>Новый вектор</returns>
+    // public static Matrix ReadVector()
+    // {
+    //     List<List<Fraction>> rows = new() { Array.ConvertAll(Console.ReadLine()!.Split(), Fraction.Parse).ToList() };
+    //     return new Matrix(rows).Transpose();
+    // }
 
     /// <summary>
     /// Составляет новую матрицу путем объединения (конкатенации) переданных матриц по столбцам
