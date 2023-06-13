@@ -14,28 +14,110 @@ class Program
         // {
         //     vectors.Add(Vector.ReadVector());
         // }
+        
 
 
-        List<Vector> V1 = new List<Vector>()
+        // LinearSpace l1 = new LinearSpace(V1);
+        // LinearSpace l2 = new LinearSpace(V2);
+        // LinearOperator linearOperator = new LinearOperator(l1, l2, matrix => matrix);
+        // Console.WriteLine(linearOperator.A);
+
+
+        Dictionary<string, Data> data = new Dictionary<string, Data>();
+
+        data["Kirill"] = new Data
         {
-            new(new Fraction[] { -1, 3, 5, 2 }),
-            new(new Fraction[] { 0, 1, -4, -5 }),
-            new(new Fraction[] { 2, -4, 0, 5 }),
-            new(new Fraction[] { 0, -2, 4, -5 }),
-        };
-        List<Vector> V2 = new List<Vector>() {
-            new (new  Fraction[] {-1, 1, 1, -1}),
-            new (new  Fraction[] {2, -1, -1, 2}),
-            new (new  Fraction[] {-3, 2, 2, -3}),
-            new (new  Fraction[] {-2, 5, 5, -2}),
+            task1 = (new List<Vector>
+                {
+                    new(new Fraction[] { -1, 3, 5, 2 }),
+                    new(new Fraction[] { 0, 1, -4, -5 }),
+                    new(new Fraction[] { 2, -4, 0, 5 }),
+                    new(new Fraction[] { 0, -2, 4, -5 })
+                },
+                new List<Vector>
+                {
+                    new(new Fraction[] { -1, 1, 1, -1 }),
+                    new(new Fraction[] { 2, -1, -1, 2 }),
+                    new(new Fraction[] { -3, 2, 2, -3 }),
+                    new(new Fraction[] { -2, 5, 5, -2 })
+                })
         };
 
-        LinearSpace l1 = new LinearSpace(V1);
-        LinearSpace l2 = new LinearSpace(V2);
-        LinearOperator linearOperator = new LinearOperator(l1, l2, matrix => matrix);
-        Console.WriteLine(linearOperator.A);
-        // Matrix m = Matrix.ConcatVectors(vectors.ToArray());
-        // Console.WriteLine(m);
-        // Console.WriteLine(m.Canonical());
+        data["Angelika"] = new Data
+        {
+            task1 = (new List<Vector>()
+                {
+                    new(new Fraction[] { 1, 1, 1, 1 }),
+                    new(new Fraction[] { 3, -4, -4, -4 }),
+                    new(new Fraction[] { -1, 2, -4, -1 }),
+                    new(new Fraction[] { -3, -5, -1, -2 }),
+                },
+                new List<Vector>()
+                {
+                    new(new Fraction[] { 4, 5, 5, -4 }),
+                    new(new Fraction[] { -5, 0, 0, 5 }),
+                    new(new Fraction[] { 5, 5, 5, -5 }),
+                    new(new Fraction[] { 2, -2, -2, -2 }),
+                })
+        };
+
+        data["pv"] = new Data
+        {
+            task1 = (
+                new List<Vector>()
+                {
+                    new(new Fraction[] { -1, -3, 5, -1 }),
+                    new(new Fraction[] { -2, 2, -2, -3 }),
+                    new(new Fraction[] { -5, -5, -3, 4 }),
+                    new(new Fraction[] { -1, 2, -1, 5 }),
+                },
+                new List<Vector>()
+                {
+                    new(new Fraction[] { -5, 3, 10, -5 }),
+                    new(new Fraction[] { 1, 4, -2, 1 }),
+                    new(new Fraction[] { -3, 1, 6, -3 }),
+                    new(new Fraction[] { 1, -2, -2, 1 }),
+                })
+        };
+        
+        
+        data["Maksim"] = new Data
+        {
+            task1 = (
+                new List<Vector>()
+                {
+                    new(new Fraction[] {-1, 1, 2, -5 }),
+                    new(new Fraction[] { 1, 1, 0, 1 }),
+                    new(new Fraction[] { 1, 2, -1, 4 }),
+                    new(new Fraction[] { 2, 0, -5, -5 }),
+                },
+                new List<Vector>()
+                {
+                    new(new Fraction[] { -5, 3, 1, -4 }),
+                    new(new Fraction[] { -1, 3, 4, -5 }),
+                    new(new Fraction[] { 1, -5, 0, 5 }),
+                    new(new Fraction[] { 5, 5, -5, -3 }),
+                })
+        };
+        
+
+        Task1(data["Maksim"].task1);
     }
+
+    static void Task1((List<Vector> v1, List<Vector> v2) v)
+    {
+        Matrix a = Matrix.ConcatVectors(v.v1.ToArray()).Transpose();
+        Matrix b = Matrix.ConcatVectors(v.v2.ToArray()).Transpose();
+
+        Matrix c = Matrix.ConcatColumns(a, b);
+        Console.WriteLine(c.Canonical());
+
+        Matrix res = c.Canonical().TakeColumns(x => x >= 4).Transpose();
+        Console.WriteLine(res);
+    }
+}
+
+class Data
+{
+    public (List<Vector>, List<Vector>) task1;
 }

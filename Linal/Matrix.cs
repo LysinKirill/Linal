@@ -1126,7 +1126,7 @@ public class Matrix
 
         for (int i = 0; i < Rows; ++i)
         {
-            rows[i] = new List<Fraction>();
+            rows.Add( new List<Fraction>());
             for (int j = 0; j < Columns; ++j)
             {
                 if (f(j))
