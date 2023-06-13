@@ -100,8 +100,28 @@ class Program
                 })
         };
         
+                
+        data["Kate"] = new Data
+        {
+            task1 = (
+                new List<Vector>()
+                {
+                    new(new Fraction[] {-3, 5, 4, 3}),
+                    new(new Fraction[] { 5, 3, 5, -5 }),
+                    new(new Fraction[] { 0, -4, 0, -2 }),
+                    new(new Fraction[] { -3, 1, 2, 3 }),
+                },
+                new List<Vector>()
+                {
+                    new(new Fraction[] { 0, -2, -5, 4 }),
+                    new(new Fraction[] { -2, -1, -2, 2}),
+                    new(new Fraction[] { -1, 5, -3, -10}),
+                    new(new Fraction[] { 0, 0, -4, 0 })
+                })
+        };
+        
 
-        Task1(data["Maksim"].task1);
+        Task1(data["Kate"].task1);
     }
 
     static void Task1((List<Vector> v1, List<Vector> v2) v)
@@ -114,6 +134,20 @@ class Program
 
         Matrix res = c.Canonical().TakeColumns(x => x >= 4).Transpose();
         Console.WriteLine(res);
+
+        LinearSpace l1 = new LinearSpace(v.v1);
+        LinearSpace l2 = new LinearSpace(v.v2);
+
+        LinearOperator A = new LinearOperator(l1, l2, res);
+        Console.WriteLine($"Dim(Ker) = {A.Ker().Dim}");
+        Console.WriteLine("Ker = ");
+        foreach(var x in A.Ker().Basis)
+            Console.WriteLine(x);
+        
+        Console.WriteLine($"Dim(Im) = {A.Im().Dim}");
+        Console.WriteLine("Im = ");
+        foreach(var x in A.Im().Basis)
+            Console.WriteLine(x);
     }
 }
 

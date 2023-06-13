@@ -19,6 +19,25 @@ public class LinearOperator
 
         A = GetOperatorMatrix();
     }
+    
+    public LinearOperator(LinearSpace V, LinearSpace W, Matrix A)
+    {
+        _firstLinearSpace = V;
+        _secondLinearSpace = W;
+        this.A = A;
+        _func = x => this.A * x;
+
+        //if (!CheckLinearOperator())
+        //    throw new ArgumentException("Invalid operator");
+        
+    }
+
+    public LinearSpace Ker()
+    {
+        return new LinearSpace(A.FSR());
+    }
+
+    public LinearSpace Im() => new(A);
 
 
     private bool CheckLinearOperator()

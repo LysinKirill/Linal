@@ -1177,6 +1177,38 @@ public class Matrix
                 return false;
         return true;
     }
+
+    public List<Vector> FSR()
+    {
+        List<Vector> fsr = new();
+        Matrix m = Canonical();
+        
+        int n = 0;
+        for (int i = 1; i < m.Rows; ++i)
+        {
+            for (int j = n + 1; j < m.Columns; ++j)
+            {
+                if (m[i, j] != 1)
+                {
+                    Vector vec = new Vector(m.Columns, 0);
+                    for (int k = 0; k < i; ++k)
+                    {
+                        vec[k] = -m[k, j];
+                    }
+
+                    vec[j] = 1;
+                    fsr.Add(vec);
+                }
+                else
+                {
+                    n = j;
+                    break;
+                }
+            }
+        }
+
+        return fsr;
+    }
     
     /// <summary>
     /// Проверка на то, является ли список из списков дробей корректным представлением прямоугольной матрицы

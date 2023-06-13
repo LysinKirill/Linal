@@ -618,6 +618,8 @@ public class MatrixTest
         output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
     }
     
+    
+    
     [Fact]
     [Trait("Category", "CanonicalMethod")]
     public void CanonicalTest5()
@@ -644,6 +646,65 @@ public class MatrixTest
             throw new Exception($"Input:\n{m}\nExpected:\n{expectedRes}\nWas:\n{res}");
         }
 
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
+    }
+    
+    
+    [Fact]
+    [Trait("Category", "FsrMethod")]
+    public void FsrTest1()
+    {
+        var m = new Matrix(new[]
+        {
+            new Fraction[] { 2, 1, 1, 3 },
+            new Fraction[] { 3, 2, 2, 1 },
+            new Fraction[] { 1, 2, 2, -9 },
+        });
+        
+        var expectedRes = new Vector[]
+        {
+            new Vector(new Fraction[] { 0, -1, 1, 0}),
+            new Vector(new Fraction[] { -5, 7, 0, 1}),
+        };
+
+        var res = m.FSR();
+        for (int i = 0; i < res.Count; i++)
+        {
+            if (res.Count != expectedRes.Length || res[i] != expectedRes[i])
+            {
+                throw new Exception($"Input:\n{m}\nExpected:\n{expectedRes[i]}\nWas:\n{res[i]}");
+            }
+        }
+        
+        output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
+    }
+    
+    [Fact]
+    [Trait("Category", "FsrMethod")]
+    public void FsrTest2()
+    {
+        var m = new Matrix(new[]
+        {
+            new Fraction[] { 2, 1, 3, -1 },
+            new Fraction[] { 3, 2, 0, -2 },
+            new Fraction[] { 3, 1, 9, -1 },
+        });
+        
+        var expectedRes = new Vector[]
+        {
+            new Vector(new Fraction[] { -6, 9, 1, 0}),
+            new Vector(new Fraction[] { 0, 1, 0, 1}),
+        };
+
+        var res = m.FSR();
+        for (int i = 0; i < res.Count; i++)
+        {
+            if (res.Count != expectedRes.Length || res[i] != expectedRes[i])
+            {
+                throw new Exception($"Input:\n{m}\nExpected:\n{expectedRes[i]}\nWas:\n{res[i]}");
+            }
+        }
+        
         output.WriteLine($"Input:\n{m}\nOutput:\n{res}");
     }
 }
