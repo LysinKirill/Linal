@@ -60,21 +60,32 @@ public class EuclideanSpace : LinearSpace
 
     //public double Dist(Matrix vector) => Math.Sqrt(DistSqr(vector).GetDouble());
     
-    public EuclideanSpace Orthogonalize()
+    public EuclideanSpace Orthogonalize(bool print = false)
     {
         var newBasis = new List<Vector>(Basis.Count);
-        foreach (var a in Basis)
+        for (var i = 0; i < Basis.Count; i++)
         {
+            var a = Basis[i];
             var b = a.Copy();
+            if (print)
+            {
+                Console.Write($"b{i} = {a} ");
+            }
             foreach (var prevB in newBasis)
             {
-                b -= prevB * (_dotProduct(prevB, a) / _dotProduct(prevB, prevB));
+                var temp = prevB * (_dotProduct(prevB, a) / _dotProduct(prevB, prevB));
+                b -= temp;
+                if (print)
+                {
+                    Console.Write($"- {temp} ");
+                }
             }
 
-            //if (!b.All(0))
-            //{
-                newBasis.Add(b);
-            //}
+            if (print)
+            {
+                Console.WriteLine($"= {b}");
+            }
+            newBasis.Add(b);
         }
 
         return new EuclideanSpace(newBasis, _dotProduct);

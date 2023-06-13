@@ -1233,12 +1233,13 @@ public class Matrix
     /// Находит QR-разложение данной матрицы
     /// </summary>
     /// <returns>Пара матриц:  Q - ортогональная матрица; R - верхнетреугольная матрица</returns>
-/*    public (Matrix Q, Matrix R) QR()
+    public (Matrix Q, Matrix R) QR(bool print = false)
     {
         if (Det() == 0)
             throw new ArgumentException("Cannot perform a QR decomposition on a degenerate matrix");
-        var E = new EuclideanSpace(GetVectors());
-        Matrix Q = E.Orthogonalize().MatrixBasis;
+        //var E = new EuclideanSpace(GetVectors());
+        var E = new EuclideanSpace(this);
+        var Q = E.Orthogonalize(print).MatrixBasis;
         for (int i = 0; i < Q.Columns; ++i)
         {
             Fraction sqrSum = new();
@@ -1249,7 +1250,18 @@ public class Matrix
 
             Fraction inverse = aux1 * aux2;
             Q.ApplyColumn(x => x * inverse, i);
+            if (print)
+            {
+                Console.WriteLine($"q{i} = {inverse} * {Q.GetColumn(i)}");
+            }
         }
-        return (Q, Q.Transpose() * this);
-    }*/
+
+        var R = Q.Transpose() * this;
+
+        if (print)
+        {
+            Console.WriteLine(R);
+        }
+        return (Q, R);
+    }
 }
