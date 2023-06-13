@@ -383,38 +383,13 @@ public class MatrixTest
             new Fraction[] { 0, -1, -6, 3, 1 },
         });
 
-        var expectedRes = new Matrix[]
+        var expectedRes = new Vector[]
         {
-            new(new[]
-            {
-                new Fraction[] { 1, },
-                new Fraction[] { 3, },
-                new Fraction[] { 0, },
-            }),
-            new(new[]
-            {
-                new Fraction[] { 3, },
-                new Fraction[] { 2, },
-                new Fraction[] { -1, },
-            }),
-            new(new[]
-            {
-                new Fraction[] { 5, },
-                new Fraction[] { 10, },
-                new Fraction[] { -6, },
-            }),
-            new(new[]
-            {
-                new Fraction[] { 3, },
-                new Fraction[] { -2, },
-                new Fraction[] { 3, },
-            }),
-            new(new[]
-            {
-                new Fraction[] { 6, },
-                new Fraction[] { 7, },
-                new Fraction[] { 1, },
-            })
+            new(new Fraction[] { 1, 3, 0 }),
+            new(new Fraction[] { 3, 2, -1 }),
+            new(new Fraction[] { 5, 10, -6 }),
+            new(new Fraction[] { 3, -2, 3 }),
+            new(new Fraction[] { 6, 7, 1 }),
         };
 
         var res = m.GetVectors();
@@ -424,7 +399,7 @@ public class MatrixTest
 
         for (int i = 0; i < res.Count; i++)
         {
-            if (res[i] != expectedRes[i])
+            if (res[i] != expectedRes[i]) 
             {
                 throw new Exception($"Input A:\n{m}\nExpected:\n{expectedRes[i]}\nWas:\n{res[i]}");
             }

@@ -4,12 +4,12 @@ public class EuclideanSpace : LinearSpace
 {
     private readonly Func<Matrix, Matrix, Fraction> _dotProduct;
     
-    public EuclideanSpace(List<Matrix> vectors, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(vectors)
+    public EuclideanSpace(List<Vector> vectors, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(vectors)
     {
         _dotProduct = dotProduct ?? DefaultDotProduct;
     }
     
-    public EuclideanSpace(Matrix[] vectors, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(vectors)
+    public EuclideanSpace(Vector[] vectors, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(vectors)
     {
         _dotProduct = dotProduct ?? DefaultDotProduct;
     }
@@ -34,7 +34,7 @@ public class EuclideanSpace : LinearSpace
     public double GetCos(Matrix v1, Matrix v2) => _dotProduct(v1, v2).GetDouble() / (GetLength(v1) * GetLength(v2));
     public double GetAngle(Matrix v1, Matrix v2) => Math.Acos(GetCos(v1, v2));
 
-    public Matrix Gram(List<Matrix> vectors)
+    public Matrix Gram(List<Vector> vectors)
     {
         int n = vectors.Count;
         Matrix gram = new Matrix(n, n);
@@ -47,22 +47,22 @@ public class EuclideanSpace : LinearSpace
     public Matrix Gram() => Gram(Basis);
 
     public Fraction Gramian() => Gram().Det();
-    public Fraction Gramian(List<Matrix> vectors) => Gram(vectors).Det();
+    public Fraction Gramian(List<Vector> vectors) => Gram(vectors).Det();
 
-    public double GetVolume(List<Matrix> vectors) => Math.Sqrt(Gramian(vectors).GetDouble());
+    public double GetVolume(List<Vector> vectors) => Math.Sqrt(Gramian(vectors).GetDouble());
 
-    public Fraction DistSqr(Matrix vector)
+    /*public Fraction DistSqr(Matrix vector)
     {
         List<Matrix> vectors = Basis.Select(x => x).ToList();
         vectors.Add(vector);
         return Gramian(vectors) / Gramian();
-    }
+    }*/
 
-    public double Dist(Matrix vector) => Math.Sqrt(DistSqr(vector).GetDouble());
+    //public double Dist(Matrix vector) => Math.Sqrt(DistSqr(vector).GetDouble());
     
     public EuclideanSpace Orthogonalize()
     {
-        var newBasis = new List<Matrix>(Basis.Count);
+        var newBasis = new List<Vector>(Basis.Count);
         foreach (var a in Basis)
         {
             var b = a.Copy();

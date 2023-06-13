@@ -186,6 +186,32 @@ public class VectorTest
             }
         }
     }
+    
+    [Fact]
+    [Trait("Category", "ConcatVectorsMethod")]
+    public void ConcatVectorsTest1()
+    {
+        var a = new Vector[]
+        {
+            new Vector(new Fraction[] { 1, 3, 0 }),
+            new Vector(new Fraction[] { 3, 2, -1 }),
+            new Vector(new Fraction[] { 0, -1, 1 }),
+        };
+
+        var expectedRes = new Matrix(new[]
+        {
+            new Fraction[] { 1, 3, 0 },
+            new Fraction[] { 3, 2, -1 },
+            new Fraction[] { 0, -1, 1 },
+        });
+
+        var res = Matrix.ConcatVectors(a);
+
+        if (res != expectedRes)
+        {
+            throw new Exception($"Input A:\n{a}\nExpected:\n{expectedRes}\nWas:\n{res}");
+        }
+    }
     /*
     [Fact]
     [Trait("Category", "Constructor")]

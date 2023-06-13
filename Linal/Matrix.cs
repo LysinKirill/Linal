@@ -22,6 +22,20 @@ public class Matrix
         _data = f;
         _maxS = GetMaxLength();
     }
+
+    public Matrix(params Vector[] vectors)
+    {
+        foreach (var vector in vectors)
+        {
+            if (!vector.IsVertical)
+            {
+                vector.Transpose();
+            }
+        }
+        var temp = ConcatVectors(vectors);
+        _data = temp._data;
+        _maxS = temp._maxS;
+    }
     
     /// <summary>
     /// Создает матрицу на основе списка из списков дробей - строк матрицы
@@ -71,7 +85,7 @@ public class Matrix
     /// Метод, осуществляющий копирование матрицы
     /// </summary>
     /// <returns>Новая матрица - копия данной</returns>
-    public Matrix Copy()
+    public virtual Matrix Copy()
     {
         var copy = new Matrix
         {
@@ -87,6 +101,31 @@ public class Matrix
 
 
         return copy;
+    }
+
+    public Vector GetRow(int id)
+    {
+        if (id >= Rows)
+        {
+            throw new ArgumentException("Invalid row");
+        }
+        
+        return new Vector(_data[id], false);
+    }
+    
+    public Vector GetColumn(int id)
+    {
+        if (id >= Columns)
+        {
+            throw new ArgumentException("Invalid row");
+        }
+        
+        var temp = new Fraction[Rows];
+        for (int i = 0; i < Rows; i++)
+        {
+            temp[i] = _data[i][id];
+        }
+        return new Vector(temp);
     }
 
     /// <summary>
@@ -220,29 +259,49 @@ public class Matrix
 
         return new Matrix(rows);
     }
+    
+    public static Matrix ConcatVectors(params Vector[] vectors)
+    {
+        var commonRowCount = vectors[0].Rows;
+
+        List<List<Fraction>> rows = new();
+
+        /*for (int i = 0; i < commonRowCount; ++i)
+            rows.Add(new List<Fraction>());
+        */
+        for (int i = 0; i < commonRowCount; ++i)
+        {
+            rows.Add(new List<Fraction>());
+            foreach (var vector in vectors)
+            {
+                rows[i].Add(vector[i]);
+            }
+        }
+
+        return new Matrix(rows);
+    }
 
     /// <summary>
     /// Представляет матрицу в виде набора вектор-столбцов
     /// </summary>
     /// <returns>Список из вектор-столбцов</returns>
-    public List<Matrix> GetVectors()
+    public List<Vector> GetVectors()
     {
         var temp = Transpose();
 
 
         var rows = temp._data.Select(row => row.ToList()).ToList();
-        List<Matrix> vectors = new();
+        List<Vector> vectors = new();
         foreach (var row in rows)
         {
-            var tempData = new Fraction[row.Count][];
+            var tempData = new Fraction[row.Count];
             for (int i = 0; i < row.Count; ++i)
             {
-                tempData[i] = new Fraction[1];
-                tempData[i][0] = row[i];
+                tempData[i] = row[i];
             }
 
 
-            vectors.Add(new Matrix(tempData));
+            vectors.Add(new Vector(tempData));
         }
 
         return vectors;
@@ -1139,7 +1198,7 @@ public class Matrix
     /// Находит QR-разложение данной матрицы
     /// </summary>
     /// <returns>Пара матриц:  Q - ортогональная матрица; R - верхнетреугольная матрица</returns>
-    public (Matrix Q, Matrix R) QR()
+/*    public (Matrix Q, Matrix R) QR()
     {
         if (Det() == 0)
             throw new ArgumentException("Cannot perform a QR decomposition on a degenerate matrix");
@@ -1157,5 +1216,5 @@ public class Matrix
             Q.ApplyColumn(x => x * inverse, i);
         }
         return (Q, Q.Transpose() * this);
-    }
+    }*/
 }
