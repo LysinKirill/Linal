@@ -97,7 +97,15 @@ class Program
                     new(new Fraction[] { -1, 3, 4, -5 }),
                     new(new Fraction[] { 1, -5, 0, 5 }),
                     new(new Fraction[] { 5, 5, -5, -3 }),
-                })
+                }),
+            
+            task5 = new Matrix(new []
+            {
+                new Fraction[]{1, 8, 6, 0 },
+                new Fraction[]{1, 8, -4, 14 },
+                new Fraction[]{1, 10, 8, -18 },
+                new Fraction[]{1, 10, 18, 0 },
+            })
         };
         
                 
@@ -121,7 +129,7 @@ class Program
         };
         
 
-        Task1(data["Maksim"].task1);
+        Task5(data["Maksim"].task5);
     }
 
     static void Task1((List<Vector> v1, List<Vector> v2) v)
@@ -150,9 +158,17 @@ class Program
         foreach(var x in A.Im().Basis)
             Console.WriteLine(x);
     }
+
+    static void Task5(Matrix matrix)
+    {
+        var res = matrix.QR(true);
+        Console.WriteLine("Check:");
+        Console.WriteLine(res.Q * res.R);
+    }
 }
 
 class Data
 {
     public (List<Vector>, List<Vector>) task1;
+    public Matrix task5;
 }

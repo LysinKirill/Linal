@@ -1249,17 +1249,18 @@ public class Matrix
             Fraction aux2 = new(1, 1, sqrSum.Denominator);
 
             Fraction inverse = aux1 * aux2;
-            Q.ApplyColumn(x => x * inverse, i);
             if (print)
             {
-                Console.WriteLine($"q{i} = {inverse} * {Q.GetColumn(i)}");
+                Console.WriteLine($"q{i} = {inverse} * {Q.GetColumn(i)} = {inverse * Q.GetColumn(i)}");
             }
+            Q.ApplyColumn(x => x * inverse, i);
         }
 
         var R = Q.Transpose() * this;
 
         if (print)
         {
+            Console.WriteLine(Q);
             Console.WriteLine(R);
         }
         return (Q, R);
