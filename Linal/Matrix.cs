@@ -78,7 +78,7 @@ public class Matrix
             throw new ArgumentException("Rows and columns of matrix have to be positive integers");
         _data = new Fraction[rows][];
         for (int i = 0; i < Rows; ++i)
-            _data[i] = new Fraction[Columns];
+            _data[i] = new Fraction[columns];
     }
     
     /// <summary>
@@ -252,10 +252,24 @@ public class Matrix
             {
                 for (int j = 0; j < matrix.Columns; ++j)
                 {
-                    rows[i].Add(matrix[i, j]);
+                    rows[i].Add(matrix[i, j].Copy());
                 }
             }
         }
+
+        return new Matrix(rows);
+    }
+    
+    /// <summary>
+    /// Составляет новую матрицу путем объединения (конкатенации) переданных матриц по строкам
+    /// </summary>
+    /// <param name="matrices">Матрицы, которые необходимо объединить</param>
+    /// <returns>Новая матрица - результат конкатенации матриц по строкам</returns>
+    public static Matrix ConcatRows(params Matrix[] matrices)
+    {
+        var commonColumnCount = matrices[0].Columns;
+
+        List<List<Fraction>> rows = new();
 
         return new Matrix(rows);
     }
@@ -281,6 +295,15 @@ public class Matrix
             }
         }
 
+        foreach (var matrix in matrices)
+        {
+            foreach (var row in matrix._data)
+            {
+                rows.Add(new List<Fraction>());
+                for(int i = 0; i < commonColumnCount; ++i)
+                    rows[^1].Add(row[i].Copy());
+            }
+        }
         return new Matrix(rows);
     }
 
