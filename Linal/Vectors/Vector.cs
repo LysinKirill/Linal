@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Linal;
 
 public class Vector : Matrix
@@ -180,5 +182,22 @@ public class Vector : Matrix
         Matrix m2 = vector2;
         var res = m1 - m2;
         return vector1.IsVertical ? new Vector(res.GetColumn(0)) : new Vector(res.GetRow(0));
+    }
+
+    public IEnumerable<Fraction> GetFractionIEnumerable()
+    {
+        var res = new Fraction[Size];
+        for (int i = 0; i < Size; i++)
+        {
+            res[i] = this[i];
+        }
+
+        return res;
+    }
+
+    public override string ToString()
+    {
+        var res = string.Join(", ", GetFractionIEnumerable());
+        return $"({res})";
     }
 }
