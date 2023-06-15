@@ -5,10 +5,10 @@ public class LinearOperator
     private LinearSpace _firstLinearSpace;
     private LinearSpace _secondLinearSpace;
 
-    private Func<Matrix, Matrix> _func;
+    private Func<Vector, Vector> _func;
     public Matrix A { get; init; }
 
-    public LinearOperator(LinearSpace V, LinearSpace W, Func<Matrix, Matrix> func)
+    public LinearOperator(LinearSpace V, LinearSpace W, Func<Vector, Vector> func)
     {
         _firstLinearSpace = V;
         _secondLinearSpace = W;
@@ -25,7 +25,7 @@ public class LinearOperator
         _firstLinearSpace = V;
         _secondLinearSpace = W;
         this.A = A;
-        _func = x => this.A * x;
+        _func = x => new Vector(this.A * x);
 
         //if (!CheckLinearOperator())
         //    throw new ArgumentException("Invalid operator");
@@ -43,12 +43,12 @@ public class LinearOperator
     private bool CheckLinearOperator()
     {
         Fraction[] magicConsts = { new(13, 7), new(5, 3), new(-19, 6), new(1, 2), new(-11, 5) };
-        foreach (Matrix e1 in _firstLinearSpace.Basis)
+        foreach (var e1 in _firstLinearSpace.Basis)
         {
             if (!_secondLinearSpace.ContainsVector(_func(e1)))
                 return false;
 
-            foreach (Matrix e2 in _firstLinearSpace.Basis)
+            foreach (var e2 in _firstLinearSpace.Basis)
             {
                 if (_func(e1 + e2) != _func(e1) + _func(e2))
                     return false;

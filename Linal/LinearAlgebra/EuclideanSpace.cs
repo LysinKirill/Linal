@@ -2,46 +2,73 @@ namespace Linal;
 
 public class EuclideanSpace : LinearSpace
 {
-    private readonly Func<Matrix, Matrix, Fraction> _dotProduct;
+    private readonly Func<Vector, Vector, Fraction> _dotProduct;
     
-    public EuclideanSpace(List<Vector> vectors, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(vectors)
+    public EuclideanSpace(List<Vector> vectors, Func<Vector, Vector, Fraction>? dotProduct = null) : base(vectors)
     {
         _dotProduct = dotProduct ?? DefaultDotProduct;
     }
     
-    public EuclideanSpace(Vector[] vectors, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(vectors)
+    public EuclideanSpace(Vector[] vectors, Func<Vector, Vector, Fraction>? dotProduct = null) : base(vectors)
     {
         _dotProduct = dotProduct ?? DefaultDotProduct;
     }
     
-    public EuclideanSpace(Matrix basisMatrix, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(basisMatrix)
+    public EuclideanSpace(Matrix basisMatrix, Func<Vector, Vector, Fraction>? dotProduct = null) : base(basisMatrix)
     {
         _dotProduct = dotProduct ?? DefaultDotProduct;
     }
 
-    public EuclideanSpace(LinearSpace linearSpace, Func<Matrix, Matrix, Fraction>? dotProduct = null) : base(linearSpace.Basis)
+    public EuclideanSpace(LinearSpace linearSpace, Func<Vector, Vector, Fraction>? dotProduct = null) : base(linearSpace.Basis)
     {
         _dotProduct = dotProduct ?? DefaultDotProduct;
     }
 
-    public double GetLength(Matrix vector)
+    public double GetLength(Vector vector)
     {
         if (!ContainsVector(vector))
-            throw new ArgumentException("The given vector does not belong to this euclidean space.");
+            throw new ArgumentException($"The given vector {vector} does not belong to this euclidean space.");
         return Math.Sqrt(_dotProduct(vector, vector).GetDouble());
     }
 
-    public double GetCos(Matrix v1, Matrix v2) => _dotProduct(v1, v2).GetDouble() / (GetLength(v1) * GetLength(v2));
-    public double GetAngle(Matrix v1, Matrix v2) => Math.Acos(GetCos(v1, v2));
+    public static Fraction GetCosSqr(Vector x, Matrix systemMatrix, Vector b)
+    {
+        var gram = Gram(systemMatrix.Transpose());
+        var xShtrix = systemMatrix * x - b;
+        var temp = Matrix.ConcatColumns(gram, xShtrix);
+        var tmp = temp.Canonical().GetColumn(temp.Columns - 1).Transpose();
+        var xOrtogonal = new Vector((tmp * systemMatrix).Transpose());
+        return DefaultDotProduct(x, xOrtogonal) * DefaultDotProduct(x, xOrtogonal) /
+               (DefaultDotProduct(x, x) * DefaultDotProduct(xOrtogonal, xOrtogonal));
+    }
+
+    public double GetCos(Vector v1, Vector v2) => _dotProduct(v1, v2).GetDouble() / (GetLength(v1) * GetLength(v2));
+    public double GetAngle(Vector v1, Vector v2) => Math.Acos(GetCos(v1, v2));
 
     public Matrix Gram(List<Vector> vectors)
     {
-        int n = vectors.Count;
+        var n = vectors.Count;
         Matrix gram = new Matrix(n, n);
         for (int i = 0; i < n; ++i)
         for (int j = 0; j < n; ++j)
             gram[i, j] = _dotProduct(vectors[i], vectors[j]);
         return gram;
+    }
+    
+    public static Matrix Gram(List<Vector> vectors, Func<Vector, Vector, Fraction>? dotProduct = null)
+    {
+        dotProduct ??= DefaultDotProduct;
+        var n = vectors.Count;
+        var gram = new Matrix(n, n);
+        for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+            gram[i, j] = dotProduct(vectors[i], vectors[j]);
+        return gram;
+    }
+
+    public static Matrix Gram(Matrix matrix, Func<Vector, Vector, Fraction>? dotProduct = null)
+    {
+        return Gram(matrix.GetVerticalVectors(), dotProduct);
     }
 
     public Matrix Gram() => Gram(Basis);
@@ -51,14 +78,24 @@ public class EuclideanSpace : LinearSpace
 
     public double GetVolume(List<Vector> vectors) => Math.Sqrt(Gramian(vectors).GetDouble());
 
-    /*public Fraction DistSqr(Matrix vector)
+    public Fraction DistSqr(Vector vector)
     {
-        List<Matrix> vectors = Basis.Select(x => x).ToList();
+        var vectors = Basis.Select(x => x).ToList();
         vectors.Add(vector);
         return Gramian(vectors) / Gramian();
-    }*/
+    }
 
-    //public double Dist(Matrix vector) => Math.Sqrt(DistSqr(vector).GetDouble());
+    public static Fraction DistSqr(Vector x, Matrix systemMatrix, Vector b)
+    {
+        var gram = Gram(systemMatrix.Transpose());
+        var xShtrix = systemMatrix * x - b;
+        var v = Matrix.ConcatColumns(gram, xShtrix);
+        var g = xShtrix.Transpose().AddColumns(false, new Vector(false, 0));
+        var M = v.AddRows(false, g);
+        return Fraction.Abs(M.Det() / gram.Det());
+    }
+
+    public double Dist(Vector vector) => Math.Sqrt(DistSqr(vector).GetDouble());
     
     public EuclideanSpace Orthogonalize(bool print = false)
     {
@@ -91,7 +128,12 @@ public class EuclideanSpace : LinearSpace
         return new EuclideanSpace(newBasis, _dotProduct);
     }
 
-    private static readonly Func<Matrix, Matrix, Fraction> DefaultDotProduct = (v1, v2) =>
+    public Fraction DotProduct(Vector v1, Vector v2)
+    {
+        return _dotProduct(v1, v2);
+    }
+
+    private static readonly Func<Vector, Vector, Fraction> DefaultDotProduct = (v1, v2) =>
     {
         if (v1.Rows != v2.Rows)
             throw new ArgumentException("Unable to compute dot product of vectors with different dimensions");

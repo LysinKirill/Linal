@@ -392,7 +392,7 @@ public class MatrixTest
             new(new Fraction[] { 6, 7, 1 }),
         };
 
-        var res = m.GetVectors();
+        var res = m.GetVerticalVectors();
 
         if (res.Count != expectedRes.Length)
             throw new Exception($"expectedRes.Count != res.Count");

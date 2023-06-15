@@ -25,7 +25,7 @@ public class LinearSpace
     
     public LinearSpace(Matrix basisMatrix)
     {
-        Basis = GetBasis(basisMatrix.GetVectors());
+        Basis = GetBasis(basisMatrix.GetVerticalVectors());
         MatrixBasis = Matrix.ConcatVectors(Basis.ToArray());
     }
 
@@ -69,6 +69,6 @@ public class LinearSpace
         return res;
     }
 
-    public bool ContainsVector(Matrix vector)
+    public bool ContainsVector(Vector vector)
         => Matrix.ConcatColumns(MatrixBasis, vector).Rank() == MatrixBasis.Rank();
 }

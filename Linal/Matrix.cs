@@ -25,13 +25,6 @@ public class Matrix
 
     public Matrix(params Vector[] vectors)
     {
-        foreach (var vector in vectors)
-        {
-            if (!vector.IsVertical)
-            {
-                vector.Transpose();
-            }
-        }
         var temp = ConcatVectors(vectors);
         _data = temp._data;
         _maxS = temp._maxS;
@@ -77,7 +70,7 @@ public class Matrix
         if (rows <= 0 || columns <= 0)
             throw new ArgumentException("Rows and columns of matrix have to be positive integers");
         _data = new Fraction[rows][];
-        for (int i = 0; i < Rows; ++i)
+        for (int i = 0; i < rows; ++i)
             _data[i] = new Fraction[columns];
     }
     
@@ -101,6 +94,48 @@ public class Matrix
 
 
         return copy;
+    }
+
+    public Matrix AddColumns(bool toLeft, params Matrix[] matrices)
+    {
+        List<Matrix> tmp;
+        if (toLeft)
+        {
+            tmp = matrices.ToList();
+            tmp.Add(this);
+        }
+        else
+        {
+            tmp = matrices.ToList();
+            tmp.Add(this);
+            tmp.Reverse();
+        }
+        
+        var temp = ConcatColumns(tmp.ToArray());
+        _data = temp._data;
+        _maxS = temp._maxS;
+        return this;
+    }
+
+    public Matrix AddRows(bool toTop, params Matrix[] matrices)
+    {
+        List<Matrix> tmp;
+        if (toTop)
+        {
+            tmp = matrices.ToList();
+            tmp.Add(this);
+        }
+        else
+        {
+            tmp = matrices.ToList();
+            tmp.Add(this);
+            tmp.Reverse();
+        }
+        
+        var temp = ConcatRows(tmp.ToArray());
+        _data = temp._data;
+        _maxS = temp._maxS;
+        return this;
     }
 
     public Vector GetRow(int id)
@@ -243,11 +278,12 @@ public class Matrix
 
         List<List<Fraction>> rows = new();
 
-        for (int i = 0; i < commonRowCount; ++i)
-            rows.Add(new List<Fraction>());
+        /*for (int i = 0; i < commonRowCount; ++i)
+            rows.Add(new List<Fraction>());*/
 
         for (int i = 0; i < commonRowCount; ++i)
         {
+            rows.Add(new List<Fraction>());
             foreach (var matrix in matrices)
             {
                 for (int j = 0; j < matrix.Columns; ++j)
@@ -269,65 +305,60 @@ public class Matrix
     {
         var commonColumnCount = matrices[0].Columns;
 
-        List<List<Fraction>> rows = new();
+        List<List<Fraction>> vectors = new();
+        foreach (var matrix in matrices)
+        {
+            if (matrix.Columns != commonColumnCount)
+            {
+                throw new ArgumentException("Incorrect concat dimensions");
+            }
+            
+            vectors.AddRange(matrix.GetHorizontalVectors().Select(vector => vector._data[0].ToList()));
+        }
 
-        return new Matrix(rows);
+        return new Matrix(vectors);
     }
     
     public static Matrix ConcatVectors(params Vector[] vectors)
     {
-        if (vectors.Length == 0)
-            return new Matrix();
-        
-        var commonRowCount = vectors[0].Rows;
-
-        List<List<Fraction>> rows = new();
-
-        /*for (int i = 0; i < commonRowCount; ++i)
-            rows.Add(new List<Fraction>());
-        */
-        for (int i = 0; i < commonRowCount; ++i)
+        if (vectors.All(vector => vector.IsVertical))
         {
-            rows.Add(new List<Fraction>());
-            foreach (var vector in vectors)
-            {
-                rows[i].Add(vector[i]);
-            }
+            return ConcatColumns(vectors);
+        }
+        if (vectors.All(vector => !vector.IsVertical))
+        {
+            return ConcatRows(vectors);
         }
 
-        foreach (var matrix in matrices)
-        {
-            foreach (var row in matrix._data)
-            {
-                rows.Add(new List<Fraction>());
-                for(int i = 0; i < commonColumnCount; ++i)
-                    rows[^1].Add(row[i].Copy());
-            }
-        }
-        return new Matrix(rows);
+        throw new ArgumentException("Cannot construct from vertical and horizontal vectors");
     }
 
     /// <summary>
     /// Представляет матрицу в виде набора вектор-столбцов
     /// </summary>
     /// <returns>Список из вектор-столбцов</returns>
-    public List<Vector> GetVectors()
+    public List<Vector> GetVerticalVectors()
     {
         var temp = Transpose();
-
-
-        var rows = temp._data.Select(row => row.ToList()).ToList();
-        List<Vector> vectors = new();
-        foreach (var row in rows)
+        var vectors = new List<Vector>();
+        for (int i = 0; i < temp.Rows; i++)
         {
-            var tempData = new Fraction[row.Count];
-            for (int i = 0; i < row.Count; ++i)
-            {
-                tempData[i] = row[i];
-            }
+            vectors.Add(new Vector(temp._data[i]));
+        }
 
+        return vectors;
+    }
 
-            vectors.Add(new Vector(tempData));
+    /// <summary>
+    /// Представляет матрицу в виде набора вектор-строк
+    /// </summary>
+    /// <returns>Список из вектор-строк</returns>
+    public List<Vector> GetHorizontalVectors()
+    {
+        var vectors = new List<Vector>();
+        for (int i = 0; i < Rows; i++)
+        {
+            vectors.Add(new Vector(_data[i], false));
         }
 
         return vectors;

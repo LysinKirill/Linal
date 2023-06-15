@@ -61,6 +61,8 @@ public class Vector : Matrix
 
     public Vector(List<Fraction> list, bool isVertical = true) : this(list.ToArray(), isVertical) { }
 
+    public Vector(bool isVertical, params Fraction[] array) : this(array, isVertical) {}
+
     public Vector(int size, Fraction value, bool isVertical = true)
     {
         IsVertical = isVertical;
@@ -181,7 +183,15 @@ public class Vector : Matrix
         Matrix m1 = vector1;
         Matrix m2 = vector2;
         var res = m1 - m2;
-        return vector1.IsVertical ? new Vector(res.GetColumn(0)) : new Vector(res.GetRow(0));
+        return new Vector(res);
+    }
+    
+    public static Vector operator+(Vector vector1, Vector vector2)
+    {
+        Matrix m1 = vector1;
+        Matrix m2 = vector2;
+        var res = m1 + m2;
+        return new Vector(res);
     }
 
     public IEnumerable<Fraction> GetFractionIEnumerable()
@@ -198,6 +208,6 @@ public class Vector : Matrix
     public override string ToString()
     {
         var res = string.Join(", ", GetFractionIEnumerable());
-        return $"({res})";
+        return IsVertical ? $"({res})" : $"({res})^T" ;
     }
 }

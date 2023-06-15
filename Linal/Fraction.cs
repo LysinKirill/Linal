@@ -177,6 +177,8 @@ public class Fraction
         return new Fraction(num);
     }
 
+    public Fraction Copy() => new Fraction(Numerator, Denominator, Root);
+    
     public static Fraction Inverse(Fraction fraction) => fraction.Numerator == 0
         ? throw new ArgumentException("Zero has no inverse")
         : new Fraction(fraction.Denominator, fraction.Numerator * fraction.Root, fraction.Root);

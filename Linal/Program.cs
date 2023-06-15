@@ -1,4 +1,6 @@
-﻿namespace Linal;
+﻿using System.Threading.Channels;
+
+namespace Linal;
 
 class Program
 {
@@ -14,7 +16,6 @@ class Program
         // {
         //     vectors.Add(Vector.ReadVector());
         // }
-        
 
 
         // LinearSpace l1 = new LinearSpace(V1);
@@ -79,14 +80,14 @@ class Program
                     new(new Fraction[] { 1, -2, -2, 1 }),
                 })
         };
-        
-        
+
+
         data["Maksim"] = new Data
         {
             task1 = (
                 new List<Vector>()
                 {
-                    new(new Fraction[] {-1, 1, 2, -5 }),
+                    new(new Fraction[] { -1, 1, 2, -5 }),
                     new(new Fraction[] { 1, 1, 0, 1 }),
                     new(new Fraction[] { 1, 2, -1, 4 }),
                     new(new Fraction[] { 2, 0, -5, -5 }),
@@ -98,23 +99,30 @@ class Program
                     new(new Fraction[] { 1, -5, 0, 5 }),
                     new(new Fraction[] { 5, 5, -5, -3 }),
                 }),
-            
-            task5 = new Matrix(new []
+
+            task5 = new Matrix(new[]
             {
-                new Fraction[]{1, 8, 6, 0 },
-                new Fraction[]{1, 8, -4, 14 },
-                new Fraction[]{1, 10, 8, -18 },
-                new Fraction[]{1, 10, 18, 0 },
-            })
+                new Fraction[] { 1, 8, 6, 0 },
+                new Fraction[] { 1, 8, -4, 14 },
+                new Fraction[] { 1, 10, 8, -18 },
+                new Fraction[] { 1, 10, 18, 0 },
+            }),
+
+            task6 = (new Vector(true, -1, -3, 1, 0), new Matrix(new[]
+            {
+                new Fraction[] { -2, 0, -2, 1 },
+                new Fraction[] { -2, 2, 1, 2 },
+                new Fraction[] { 3, 1, 3, -2 },
+            }))
         };
-        
-                
+
+
         data["Kate"] = new Data
         {
             task1 = (
                 new List<Vector>()
                 {
-                    new(new Fraction[] {-3, 5, 4, 3}),
+                    new(new Fraction[] { -3, 5, 4, 3 }),
                     new(new Fraction[] { 5, 3, 5, -5 }),
                     new(new Fraction[] { 0, -4, 0, -2 }),
                     new(new Fraction[] { -3, 1, 2, 3 }),
@@ -122,14 +130,20 @@ class Program
                 new List<Vector>()
                 {
                     new(new Fraction[] { 0, -2, -5, 4 }),
-                    new(new Fraction[] { -2, -1, -2, 2}),
-                    new(new Fraction[] { -1, 5, -3, -10}),
+                    new(new Fraction[] { -2, -1, -2, 2 }),
+                    new(new Fraction[] { -1, 5, -3, -10 }),
                     new(new Fraction[] { 0, 0, -4, 0 })
                 })
         };
-        
 
-        Task5(data["Maksim"].task5);
+        
+        Task6(data["Maksim"].task6);
+
+        /*Console.WriteLine(EuclideanSpace.DistSqr(new Vector(true, 4, 2, -5, 1), new Matrix(new[]
+        {
+            new Fraction[] { 2, -2, 1, 2 },
+            new Fraction[] { 2, -4, 2, 3 },
+        }), new Vector(true, 9, 12)));*/
     }
 
     static void Task1((List<Vector> v1, List<Vector> v2) v)
@@ -150,12 +164,12 @@ class Program
         LinearOperator A = new LinearOperator(l1, l2, res);
         Console.WriteLine($"Dim(Ker) = {A.Ker().Dim}");
         Console.WriteLine("Ker = ");
-        foreach(var x in A.Ker().Basis)
+        foreach (var x in A.Ker().Basis)
             Console.WriteLine(x);
-        
+
         Console.WriteLine($"Dim(Im) = {A.Im().Dim}");
         Console.WriteLine("Im = ");
-        foreach(var x in A.Im().Basis)
+        foreach (var x in A.Im().Basis)
             Console.WriteLine(x);
     }
 
@@ -165,10 +179,30 @@ class Program
         Console.WriteLine("Check:");
         Console.WriteLine(res.Q * res.R);
     }
+
+    static void Task6((Vector a, Matrix A) pair)
+    {
+        //var e = new EuclideanSpace(pair.A.FSR());
+        var basis = new List<Vector>() { new(true, 7, 3, -4, 6) };
+        var e = new EuclideanSpace(basis);
+        //Console.WriteLine(e.Gram(basis));
+        //basis.Add(pair.a);
+        //Console.WriteLine(e.Gram(basis));
+        //Console.WriteLine(e.Gramian(basis));
+        //Console.WriteLine(e.DistSqr(pair.a));
+        var xProj = new Fraction(-20, 110) * basis[0];
+        Console.WriteLine(xProj);
+        Console.WriteLine(e.DotProduct(pair.a, xProj));
+        Console.WriteLine(e.DotProduct(pair.a, pair.a));
+        Console.WriteLine(e.DotProduct(xProj, xProj));
+        Console.WriteLine(EuclideanSpace.GetCosSqr(pair.a, pair.A, new Vector(3, 0)));
+        Console.WriteLine(EuclideanSpace.DistSqr(pair.a, pair.A, new Vector(3, 0)));
+    }
 }
 
 class Data
 {
     public (List<Vector>, List<Vector>) task1;
     public Matrix task5;
+    public (Vector, Matrix) task6;
 }
