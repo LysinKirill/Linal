@@ -1314,7 +1314,9 @@ public class Matrix
 
         if (print)
         {
+            Console.WriteLine("Q:");
             Console.WriteLine(Q);
+            Console.WriteLine("R:");
             Console.WriteLine(R);
         }
         return (Q, R);

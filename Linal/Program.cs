@@ -78,7 +78,13 @@ class Program
                     new(new Fraction[] { 1, 4, -2, 1 }),
                     new(new Fraction[] { -3, 1, 6, -3 }),
                     new(new Fraction[] { 1, -2, -2, 1 }),
-                })
+                }),
+            task6 = (new Vector(true, -4, -4, 0, 5), new Matrix(new[]
+            {
+                new Fraction[] { 0, 2, 0, -2 },
+                new Fraction[] { 4, 2, 1, 3 },
+                new Fraction[] { 2, -1, -1, 2 },
+            }))
         };
 
 
@@ -113,7 +119,48 @@ class Program
                 new Fraction[] { -2, 0, -2, 1 },
                 new Fraction[] { -2, 2, 1, 2 },
                 new Fraction[] { 3, 1, 3, -2 },
-            }))
+            })),
+            
+            task7 = (new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { 2, -1, },
+                    new Fraction[] { 1, 0 },
+                }),
+                new Matrix(new[]
+                {
+                    new Fraction[] { 1, -1, },
+                    new Fraction[] { -2, -2 },
+                    
+                }),
+            }, new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { 2, 0, },
+                    new Fraction[] { -1, 2 },
+                }),
+            }, new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { -2, 0, },
+                    new Fraction[] { 2, 0 },
+                }),
+                new Matrix(new[]
+                {
+                    new Fraction[] { 0, 1, },
+                    new Fraction[] { 2, 2 },
+                }),
+            }),
+            
+            task10 = new Matrix(new[]
+            {
+                new Fraction[] { 11, -11, 21, -21 },
+                new Fraction[] { 21, -21, 11, -11 },
+            })
+            
         };
 
 
@@ -135,15 +182,18 @@ class Program
                     new(new Fraction[] { 0, 0, -4, 0 })
                 })
         };
-
         
-        Task6(data["Maksim"].task6);
-
-        /*Console.WriteLine(EuclideanSpace.DistSqr(new Vector(true, 4, 2, -5, 1), new Matrix(new[]
+        //Task6(data["pv"].task6);
+        Task7(data["Maksim"].task7);
+        /*var tmp = new List<Vector>()
         {
-            new Fraction[] { 2, -2, 1, 2 },
-            new Fraction[] { 2, -4, 2, 3 },
-        }), new Vector(true, 9, 12)));*/
+            new(new Fraction[] { -1, 1, 0 }),
+            new(new Fraction[] { 1, 0, 1 }),
+        };
+        var e = new EuclideanSpace(tmp);
+        e.Orthogonalize(true);
+        var x = new Vector(new Fraction[] { new(1, 2), new(1, 2), 1 });
+        Console.WriteLine(e.DotProduct(x, x));*/
     }
 
     static void Task1((List<Vector> v1, List<Vector> v2) v)
@@ -182,21 +232,74 @@ class Program
 
     static void Task6((Vector a, Matrix A) pair)
     {
+        // fsr не робит, почини
         //var e = new EuclideanSpace(pair.A.FSR());
-        var basis = new List<Vector>() { new(true, 7, 3, -4, 6) };
+        var basis = new List<Vector>() { new(true, -1, 1, -1, 1) };
         var e = new EuclideanSpace(basis);
-        //Console.WriteLine(e.Gram(basis));
-        //basis.Add(pair.a);
-        //Console.WriteLine(e.Gram(basis));
-        //Console.WriteLine(e.Gramian(basis));
-        //Console.WriteLine(e.DistSqr(pair.a));
-        var xProj = new Fraction(-20, 110) * basis[0];
-        Console.WriteLine(xProj);
-        Console.WriteLine(e.DotProduct(pair.a, xProj));
-        Console.WriteLine(e.DotProduct(pair.a, pair.a));
-        Console.WriteLine(e.DotProduct(xProj, xProj));
-        Console.WriteLine(EuclideanSpace.GetCosSqr(pair.a, pair.A, new Vector(3, 0)));
+        Console.WriteLine(e.Gram(basis));
+        basis.Add(pair.a);
+        Console.WriteLine(e.Gram(basis));
+        Console.WriteLine(e.Gramian(basis));
+        Console.WriteLine(e.DistSqr(pair.a));
+        var xProj = new Fraction(5, 4) * basis[0];
+        Console.WriteLine("Dist^2:");
         Console.WriteLine(EuclideanSpace.DistSqr(pair.a, pair.A, new Vector(3, 0)));
+        Console.WriteLine("Xproj:");
+        Console.WriteLine(xProj);
+        Console.WriteLine("(a, xpoj)");
+        Console.WriteLine(e.DotProduct(pair.a, xProj));
+        Console.WriteLine("(a, a)");
+        Console.WriteLine(e.DotProduct(pair.a, pair.a));
+        Console.WriteLine("(xproj, xproj)");
+        Console.WriteLine(e.DotProduct(xProj, xProj));
+        Console.WriteLine("CosA");
+        Console.WriteLine(EuclideanSpace.GetCosSqr(pair.a, pair.A, new Vector(3, 0)));
+    }
+
+    static void Task7((List<Matrix>, List<Matrix>, List<Matrix>) tuple)
+    { 
+        Func<Matrix, Matrix, Fraction> dotProduct = (m1, m2) =>
+        {
+            var res = (m2.Transpose() * m1).Trace();
+            Console.WriteLine("DotProduct:");
+            Console.WriteLine("M1:");
+            Console.WriteLine(m1);
+            Console.WriteLine("M2:");
+            Console.WriteLine(m2);
+            Console.WriteLine("RES:");
+            Console.WriteLine(res);
+            return res;
+        };
+        var m = tuple.Item3[0] - tuple.Item3[1];
+        Console.WriteLine("X1 - X2");
+        Console.WriteLine(m);
+        var L1L2 = new List<Matrix>();
+        L1L2.AddRange(tuple.Item1);
+        L1L2.AddRange(tuple.Item2);
+        var gram = EuclideanSpace.Gram(L1L2, dotProduct);
+        L1L2.Add(m);
+        var gramShtrix = EuclideanSpace.Gram(L1L2, dotProduct);
+        Console.WriteLine(gram);
+        Console.WriteLine(gramShtrix);
+        Console.WriteLine("DistSqr");
+        Console.WriteLine(gramShtrix.Det() / gram.Det());
+    }
+
+    static void Task10(Matrix A)
+    {
+        var AT = A.Transpose();
+        var firstM = AT * A;
+        var secondM = A * AT;
+        Console.WriteLine("AT * A =");
+        Console.WriteLine(firstM);
+        Console.WriteLine("Tr(AT*A)");
+        Console.WriteLine(firstM.Trace());
+        Console.WriteLine("det(AT*A)");
+        Console.WriteLine(firstM.Det());
+        Console.WriteLine(firstM.Canonical());
+        Console.WriteLine("A * AT =");
+        Console.WriteLine(secondM);
+
     }
 }
 
@@ -205,4 +308,7 @@ class Data
     public (List<Vector>, List<Vector>) task1;
     public Matrix task5;
     public (Vector, Matrix) task6;
+    public (List<Matrix>, List<Matrix>, List<Matrix>) task7;
+    public Matrix task8;
+    public Matrix task10;
 }
