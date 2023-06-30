@@ -41,7 +41,55 @@ class Program
                     new(new Fraction[] { 2, -1, -1, 2 }),
                     new(new Fraction[] { -3, 2, 2, -3 }),
                     new(new Fraction[] { -2, 5, 5, -2 })
-                })
+                }),
+            task5 = new Matrix(new[]
+            {
+                new Fraction[] { -6, -4, -2, 4 },
+                new Fraction[] { -6, 14, -12, 24},
+                new Fraction[] { -6, 14, -2, 6},
+                new Fraction[] { -6, -4, -12, 6},
+            }),
+            task6 = (new Vector(true, -4, -4, -3, 1), new Matrix(new[]
+            {
+                new Fraction[] { -2, -2, 0, 4 },
+                new Fraction[] { 4, -2, 4, -2},
+                new Fraction[] { 4, 4, -2, -2},
+            })),
+            task7 = (new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { -2, 2, },
+                    new Fraction[] { 1, 1 },
+                }),
+                new Matrix(new[]
+                {
+                    new Fraction[] { -1, 0, },
+                    new Fraction[] { 1, 0 },
+                    
+                }),
+            }, new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { -1, 1 },
+                    new Fraction[] { 1, 2 },
+                }),
+            }, new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { -1, -1, },
+                    new Fraction[] { 0, 0 },
+                }),
+                new Matrix(new[]
+                {
+                    new Fraction[] { -2, -1 },
+                    new Fraction[] { 2, -1 },
+                }),
+
+            }),
+            
         };
 
         data["Angelika"] = new Data
@@ -59,7 +107,40 @@ class Program
                     new(new Fraction[] { -5, 0, 0, 5 }),
                     new(new Fraction[] { 5, 5, 5, -5 }),
                     new(new Fraction[] { 2, -2, -2, -2 }),
-                })
+                }),
+            task7 = (new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { 1, 2 },
+                    new Fraction[] { 1, -2 },
+                }),
+                new Matrix(new[]
+                {
+                    new Fraction[] { 1, 1, },
+                    new Fraction[] { 1, -1 },
+                    
+                }),
+            }, new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { -2, -1, },
+                    new Fraction[] { 0, 2 },
+                }),
+            }, new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { 1, 1 },
+                    new Fraction[] { 2, 1 },
+                }),
+                new Matrix(new[]
+                {
+                    new Fraction[] { 0, 0, },
+                    new Fraction[] { 2, 1 },
+                }),
+            }),
         };
 
         data["pv"] = new Data
@@ -182,18 +263,77 @@ class Program
                     new(new Fraction[] { 0, 0, -4, 0 })
                 })
         };
-        
-        //Task6(data["pv"].task6);
-        Task7(data["Maksim"].task7);
-        /*var tmp = new List<Vector>()
+
+        data["Denis"] = new Data
         {
-            new(new Fraction[] { -1, 1, 0 }),
-            new(new Fraction[] { 1, 0, 1 }),
+            task7 = (new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { 0, 2 },
+                    new Fraction[] { 2, 1 },
+                }),
+                new Matrix(new[]
+                {
+                    new Fraction[] { -2, -1 },
+                    new Fraction[] { -2, -2 },
+
+                }),
+            }, new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { 1, 1 },
+                    new Fraction[] { -1, 0 },
+                }),
+            }, new List<Matrix>()
+            {
+                new Matrix(new[]
+                {
+                    new Fraction[] { 1, -2 },
+                    new Fraction[] { 1, 2 },
+                }),
+                new Matrix(new[]
+                {
+                    new Fraction[] { 0, 1 },
+                    new Fraction[] { 1, 1 },
+                }),
+            })
         };
-        var e = new EuclideanSpace(tmp);
-        e.Orthogonalize(true);
-        var x = new Vector(new Fraction[] { new(1, 2), new(1, 2), 1 });
-        Console.WriteLine(e.DotProduct(x, x));*/
+        
+        //________________________________________________
+
+        //Task7(data["Denis"].task7);
+
+        // Matrix m = Matrix.E(4);
+        // while (m.Rank() == 4)
+        // {
+        //     m = Matrix.GetRandIntMatrix(4, 6, -1, 1);
+        // }
+        // Console.WriteLine(m);
+        // Console.WriteLine(m.Canonical());
+        // Console.WriteLine();
+        // foreach (var x in m.FSR())
+        // {
+        //     Console.WriteLine(x);
+        // }
+
+
+        Polynomial polynomial = new Polynomial(new Fraction(2, 3), new(), new Fraction(4, 5), new(1, 2), new(2, 1), new (3, 7));
+        while (polynomial.Degree > 0)
+        {
+            Console.WriteLine(polynomial);
+            Console.WriteLine(polynomial.Degree);
+            Console.WriteLine();
+            polynomial = polynomial.Derivative();
+        }
+
+        // Console.WriteLine(polynomial);
+        // Console.WriteLine(polynomial.Degree);
+        // Console.WriteLine(polynomial.Derivative());
+        // Console.WriteLine(polynomial.Derivative().Degree);
+        // Console.WriteLine(polynomial.Derivative(2));
+        // Console.WriteLine(polynomial.Derivative(2).Degree);
     }
 
     static void Task1((List<Vector> v1, List<Vector> v2) v)
@@ -234,14 +374,14 @@ class Program
     {
         // fsr не робит, почини
         //var e = new EuclideanSpace(pair.A.FSR());
-        var basis = new List<Vector>() { new(true, -1, 1, -1, 1) };
+        var basis = new List<Vector>() { new(true, -1, 3, 3, 1) };
         var e = new EuclideanSpace(basis);
         Console.WriteLine(e.Gram(basis));
         basis.Add(pair.a);
         Console.WriteLine(e.Gram(basis));
         Console.WriteLine(e.Gramian(basis));
         Console.WriteLine(e.DistSqr(pair.a));
-        var xProj = new Fraction(5, 4) * basis[0];
+        var xProj = new Fraction(-4, 5) * basis[0];
         Console.WriteLine("Dist^2:");
         Console.WriteLine(EuclideanSpace.DistSqr(pair.a, pair.A, new Vector(3, 0)));
         Console.WriteLine("Xproj:");
@@ -252,7 +392,7 @@ class Program
         Console.WriteLine(e.DotProduct(pair.a, pair.a));
         Console.WriteLine("(xproj, xproj)");
         Console.WriteLine(e.DotProduct(xProj, xProj));
-        Console.WriteLine("CosA");
+        Console.WriteLine("(CosA)^2 = ");
         Console.WriteLine(EuclideanSpace.GetCosSqr(pair.a, pair.A, new Vector(3, 0)));
     }
 

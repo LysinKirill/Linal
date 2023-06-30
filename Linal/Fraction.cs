@@ -96,6 +96,16 @@ public class Fraction
             $"{(Root == 1 ? Numerator : Numerator == 1 ? "" : Numerator == -1 ? "-" : Numerator) + (Root == 1 ? "" : $"√({Root})")}/{Denominator}";
     }
 
+    public override bool Equals(object? obj)
+    {
+        return obj!.GetType() == typeof(Fraction) && (Fraction)(obj) == this;
+    }
+
+    public override int GetHashCode()
+    {
+        return (int)(Numerator * Denominator * Root);
+    }
+
     private static long Gcd(long a, long b)
     {
         (a, b) = (Math.Abs(a), Math.Abs(b));

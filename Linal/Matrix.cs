@@ -1235,33 +1235,34 @@ public class Matrix
         return true;
     }
 
+    /// <summary>
+    /// Метод, находящий ФСР ОСЛАУ, заданной данной матрицей, т.е. системы A*X = 0
+    /// </summary>
+    /// <returns>Список векторов - столбцы ФСР</returns>
     public List<Vector> FSR()
     {
         List<Vector> fsr = new();
         Matrix m = Canonical();
-        
-        int n = 0;
-        for (int i = 1; i < m.Rows; ++i)
-        {
-            for (int j = n + 1; j < m.Columns; ++j)
-            {
-                if (m[i, j] != 1)
+        HashSet<int> leading = new HashSet<int>();
+        for(int i = 0; i < m.Rows; ++i)
+            for(int j = 0; j < m.Columns; ++j)
+                if (m[i, j] == 1)
                 {
-                    Vector vec = new Vector(m.Columns, 0);
-                    for (int k = 0; k < i; ++k)
-                    {
-                        vec[k] = -m[k, j];
-                    }
-
-                    vec[j] = 1;
-                    fsr.Add(vec);
-                }
-                else
-                {
-                    n = j;
+                    leading.Add(j);
                     break;
                 }
+
+        for (int j = 0; j < m.Columns; ++j)
+        {
+            if(leading.Contains(j))
+                continue;
+            Vector vec = new Vector(m.Columns, 0);
+            for (int i = 0; i < m.Rows; ++i)
+            {
+                vec[i] = -m[i, j];
             }
+            vec[j] = 1;
+            fsr.Add(vec);
         }
 
         return fsr;
