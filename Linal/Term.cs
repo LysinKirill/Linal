@@ -4,7 +4,9 @@ namespace Linal;
 
 public class Term
 {
-    private Dictionary<long, Fraction> _coefficients = new Dictionary<long, Fraction>();
+    private readonly Dictionary<long, Fraction> _coefficients = new Dictionary<long, Fraction>();
+
+    public bool IsRational => _coefficients.Count == 0 || (_coefficients.Count == 1 && _coefficients.ContainsKey(1));   // Remove check for coef.Count == 0???
 
     public Term() => _coefficients[0] = 0;
 
@@ -29,6 +31,8 @@ public class Term
 
     public double GetDouble() => _coefficients.Sum(x => x.Value.GetDouble());
 
+    public Fraction GetRootCoefficient(long rootPart) => _coefficients[rootPart];
+
     public Term Copy()
     {
         List<Fraction> temp = new();
@@ -50,6 +54,44 @@ public class Term
         return string.Join(" + ", query);
     }
 
+    
+    private static long Gcd(params long[] nums)
+    {
+        if (nums.Length == 1)
+            return nums[0];
+        if (nums.Length == 2)
+            return Gcd(nums[0], nums[1]);
+        return Gcd(nums[0], Gcd(nums[1..]));
+    }
+    
+    private static long Lcm(params long[] nums)
+    {
+        if (nums.Length == 1)
+            return nums[0];
+        if (nums.Length == 2)
+            return Lcm(nums[0], nums[1]);
+        return Lcm(nums[0], Lcm(nums[1..]));
+    }
+
+    private static long Gcd(long a, long b)
+    {
+        while (b != 0)
+        {
+            long temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
+    private static long Lcm(long a, long b)
+    {
+        return (a / Gcd(a, b)) * b;
+    }
+    public long CommonDenominator()
+    {
+        return Lcm(_coefficients.Values.Select(x => x.Denominator).ToArray());
+    }
 
 
     public static bool operator ==(Term term1, Term term2)

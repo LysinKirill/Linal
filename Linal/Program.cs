@@ -302,38 +302,25 @@ class Program
         };
         
         //________________________________________________
-
-        //Task7(data["Denis"].task7);
-
-        // Matrix m = Matrix.E(4);
-        // while (m.Rank() == 4)
-        // {
-        //     m = Matrix.GetRandIntMatrix(4, 6, -1, 1);
-        // }
-        // Console.WriteLine(m);
-        // Console.WriteLine(m.Canonical());
-        // Console.WriteLine();
-        // foreach (var x in m.FSR())
-        // {
-        //     Console.WriteLine(x);
-        // }
+        
 
 
-        Polynomial polynomial = new Polynomial(new Fraction(2, 3), new(), new Fraction(4, 5), new(1, 2), new(2, 1), new (3, 7));
-        while (polynomial.Degree > 0)
-        {
-            Console.WriteLine(polynomial);
-            Console.WriteLine(polynomial.Degree);
-            Console.WriteLine();
-            polynomial = polynomial.Derivative();
-        }
+        //Polynomial polynomial = new Polynomial(new Fraction(1), new (11, 3), new(1, 3), new(-5));
+        //Polynomial polynomial = new Polynomial(new Fraction(1), new (25, 9), new(-103, 27), new(-85, 9));
+        Polynomial polynomial = new Polynomial(new Fraction(4, 7), new (568, 63), new(3488, 189), new(-6376, 189), new (-4420, 63));
+        polynomial.GetFactorization();
 
-        // Console.WriteLine(polynomial);
-        // Console.WriteLine(polynomial.Degree);
-        // Console.WriteLine(polynomial.Derivative());
-        // Console.WriteLine(polynomial.Derivative().Degree);
-        // Console.WriteLine(polynomial.Derivative(2));
-        // Console.WriteLine(polynomial.Derivative(2).Degree);
+        Console.WriteLine();
+        polynomial = new Polynomial(new Fraction(1), new (-3), new (3), new (-1));
+        polynomial.GetFactorization();
+        
+        
+        // Такой полином не сработал, а у него есть разложение
+        polynomial = new Polynomial(new Fraction(4, 7), new(10252, 1197), new(5816, 513), new(-173464, 3591),
+            new(-52100, -1197), new(22100, 399));
+        
+        polynomial.GetFactorization();
+
     }
 
     static void Task1((List<Vector> v1, List<Vector> v2) v)

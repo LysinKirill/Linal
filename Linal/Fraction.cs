@@ -265,6 +265,22 @@ public class Fraction
         _eps = eps > 0 ? eps : throw new ArgumentException("Epsilon value should be represented by a positive double");
     }
 
+    public HashSet<Fraction> GetDivisors()
+    {
+        if (Root != 1)
+            throw new ArgumentException("Cannot factor an irrational number");
+        HashSet<Fraction> divisors = new();
+        for(long x = 1; x <= Math.Abs(Numerator)/2; ++x)
+            if (Numerator % x == 0)
+            {
+                divisors.Add(new Fraction(x, Denominator));
+                divisors.Add(new Fraction(-x, Denominator));
+            }
+                
+        divisors.Add(new(Numerator, Denominator));
+        divisors.Add(new(-Numerator, Denominator));
+        return divisors;
+    }
     public static bool operator ==(Fraction f1, Fraction f2) =>
         ((f1.Numerator == f2.Numerator) && (f1.Denominator == f2.Denominator));
 
