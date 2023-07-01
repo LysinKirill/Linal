@@ -1,9 +1,12 @@
-﻿namespace Linal;
+﻿using Linal.Interfaces;
 
-public class Fraction
+namespace Linal;
+
+public class Fraction : INum
 {
     private static double _eps = 10e-8;
 
+    public bool IsNegative => Numerator < 0;
     public long Numerator { get; private set; }
     public long Denominator { get; private set; }
 
