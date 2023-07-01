@@ -189,9 +189,9 @@ public class Fraction
 
     public Fraction Copy() => new Fraction(Numerator, Denominator, Root);
     
-    public static Fraction Inverse(Fraction fraction) => fraction.Numerator == 0
+    public Fraction Inverse() => Numerator == 0
         ? throw new ArgumentException("Zero has no inverse")
-        : new Fraction(fraction.Denominator, fraction.Numerator * fraction.Root, fraction.Root);
+        : new Fraction(Denominator, Numerator * Root, Root);
 
     public static Fraction operator *(Fraction a, Fraction b)
     {

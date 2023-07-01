@@ -618,7 +618,7 @@ public class Matrix
                 }
 
                 m.SwapRows(i - shift, aux);
-                inverse = Fraction.Inverse(m[i - shift, i]);
+                inverse = m[i - shift, i].Inverse();
                 m.ApplyRow(x => x * inverse, i - shift);
             }
             
@@ -626,7 +626,7 @@ public class Matrix
             {
                 if (m[k, i] == 0)
                     continue;
-                inverse = Fraction.Inverse(m[k, i]);
+                inverse = m[k, i].Inverse();
                 m.ApplyRow(x => x * inverse, k);
                 m.AddToRow(k, i - shift, new Fraction(-1));
             }
@@ -892,10 +892,10 @@ public class Matrix
         {
             _data = new Fraction[a.Rows][]
         };
-        for (int i = 0; i < c.Rows; i++)
+        for (int i = 0; i < a.Rows; i++)
         {
-            c._data[i] = new Fraction[c.Columns];
-            for (int j = 0; j < c.Columns; j++)
+            c._data[i] = new Fraction[a.Columns];
+            for (int j = 0; j < a.Columns; j++)
                 c._data[i][j] = a._data[i][j] * num;
         }
 
@@ -926,6 +926,8 @@ public class Matrix
     }
 
     public static Matrix operator *(Fraction num, Matrix a) => a * num;
+    
+    public static Matrix operator /(Matrix a, Fraction num) => a * num.Inverse();
 
     public static Matrix operator +(Matrix a, Matrix b)
     {
@@ -1300,8 +1302,8 @@ public class Matrix
             Fraction sqrSum = new();
             for (int j = 0; j < Q.Rows; ++j)
                 sqrSum += Q[j, i] * Q[j, i];
-            Fraction aux1 = Fraction.Inverse(new(1, 1, sqrSum.Numerator));
-            Fraction aux2 = new(1, 1, sqrSum.Denominator);
+            var aux1 = new Fraction(1, 1, sqrSum.Numerator).Inverse();
+            var aux2 = new Fraction(1, 1, sqrSum.Denominator);
 
             Fraction inverse = aux1 * aux2;
             if (print)
