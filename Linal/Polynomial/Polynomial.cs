@@ -10,6 +10,7 @@ public class Polynomial
     public int Degree => _terms.Keys.Max();
 
     public Polynomial(Dictionary<int, Term> terms) => _terms = terms;
+
     public Polynomial(params Fraction[] fractions)
     {
         int i = fractions.Length - 1;
@@ -20,6 +21,7 @@ public class Polynomial
                 --i;
                 continue;
             }
+
             _terms[i] = new(fractions[fractions.Length - i - 1]);
             --i;
         }
@@ -35,10 +37,13 @@ public class Polynomial
                 --i;
                 continue;
             }
+
             _terms[i] = terms[terms.Length - i - 1];
             --i;
         }
     }
+
+    public Polynomial() => _terms[0] = new Term();
 
     public Polynomial Derivative(int order = 1)
     {
@@ -63,7 +68,7 @@ public class Polynomial
             return Gcd(nums[0], nums[1]);
         return Gcd(nums[0], Gcd(nums[1..]));
     }
-    
+
     private static long Lcm(params long[] nums)
     {
         if (nums.Length == 1)
@@ -81,6 +86,7 @@ public class Polynomial
             b = a % b;
             a = temp;
         }
+
         return a;
     }
 
@@ -88,39 +94,49 @@ public class Polynomial
     {
         return (a / Gcd(a, b)) * b;
     }
+
     public long CommonDenominator()
     {
         return Lcm(_terms.Values.Select(x => x.CommonDenominator()).ToArray());
     }
 
-    public List<Fraction> GetFactorization()
+    public List<Fraction> GetFactorization(bool print = false)
     {
-        StringBuilder sb = new();
         List<Fraction> factors = new();
         Polynomial poly = Copy();
-        Fraction root = null;
+        Fraction leadingCoefficient = poly._terms[poly.Degree].GetRootCoefficient(1);
+        poly /= leadingCoefficient;
+
+        Fraction root;
         do
         {
             poly.Horner(out poly, out root);
-            if (root is not null) 
+            if (root is not null)
                 factors.Add(root);
-            
         } while (root is not null);
-        
-        sb.Append($"{this} = {poly}");
-        if (factors.Count != 0)
+
+        poly *= leadingCoefficient;
+        if (print)
         {
-            foreach (var factor in factors.OrderByDescending(x => x.GetDouble()))
+            StringBuilder sb = new();
+            sb.Append($"{this} = {poly}");
+            if (factors.Count != 0)
             {
-                if (factor == 0)
-                    sb.Append(" * x");
-                else
-                    sb.Append($" * (x {(factor > new Fraction() ? "-" : "+")} {Fraction.Abs(factor)})");
+                foreach (var factor in factors.OrderByDescending(x => x.GetDouble()))
+                {
+                    if (factor == 0)
+                        sb.Append(" * x");
+                    else
+                        sb.Append($" * (x {(factor > new Fraction() ? "-" : "+")} {Fraction.Abs(factor)})");
+                }
+
+                Console.WriteLine(sb);
             }
-            Console.WriteLine(sb);
         }
+
         return factors;
-    } 
+    }
+
     public void Horner(out Polynomial poly, out Fraction? root)
     {
         if (_terms.Any(x => !x.Value.IsRational))
@@ -128,48 +144,47 @@ public class Polynomial
         //List<Fraction> list = _terms.OrderByDescending(x => x.Key).Select(term => term.Value.GetRootCoefficient(1)).ToList();
 
         int degree = Degree;
-        HashSet<Fraction> divFirst = _terms[degree].GetRootCoefficient(1).GetDivisors();
+
+        if (_terms[degree] != new Fraction(1))
+            throw new UnluckyException(
+                "Performing Horner's methed on a polynomial with leading coefficient different from 1 currently results in UB)))");
+
+
         HashSet<Fraction> divLast = _terms.ContainsKey(0)
-            ? _terms[0].GetRootCoefficient(1).GetDivisors()
+            ? _terms[0].GetRootCoefficient(1).GetDivisors().Select(x => new Fraction(x.Numerator)).ToHashSet()
             : new HashSet<Fraction>() { 0 };
 
         HashSet<Fraction> divDenom = new Fraction(CommonDenominator()).GetDivisors();
         foreach (var c in divLast)
         {
-            foreach (var a in divFirst)
+            foreach (var denom in divDenom)
             {
-                foreach (var denom in divDenom)
+                Fraction temp = c / denom;
+                Fraction sum = _terms[degree].GetRootCoefficient(1);
+                for (int i = degree - 1; i >= 0; --i)
                 {
-                    // Ах эти вложенные циклы...
-                    // Не уверен, что самый вложенный цикл должен так работать кста, но проверено на целом ОДНОМ тесте
-                    Fraction temp = c / (a * denom);
-                    // Fraction temp = c / (a / denom);  // Чет бред написал, надо разобраться
-                    Fraction sum = _terms[degree].GetRootCoefficient(1);
-                    for (int i = degree - 1; i >= 0; --i)
+                    sum *= temp;
+                    if (_terms.ContainsKey(i))
+                        sum += _terms[i].GetRootCoefficient(1);
+                }
+
+                if (sum == 0) // Root found
+                {
+                    Dictionary<int, Term> newTerms = new();
+                    sum = _terms[degree].GetRootCoefficient(1);
+                    newTerms[degree - 1] = _terms[degree].Copy();
+                    for (int i = degree - 1; i >= 1; --i)
                     {
                         sum *= temp;
                         if (_terms.ContainsKey(i))
                             sum += _terms[i].GetRootCoefficient(1);
+                        if (sum != 0)
+                            newTerms[i - 1] = new Term(sum);
                     }
 
-                    if (sum == 0)   // Root found
-                    {
-                        Dictionary<int, Term> newTerms = new();
-                        sum = _terms[degree].GetRootCoefficient(1);
-                        newTerms[degree - 1] = _terms[degree].Copy();
-                        for (int i = degree - 1; i >= 1; --i)
-                        {
-                            sum *= temp;
-                            if (_terms.ContainsKey(i))
-                                sum += _terms[i].GetRootCoefficient(1);
-                            if (sum != 0)
-                                newTerms[i - 1] = new Term(sum);
-                        }
-
-                        poly = new Polynomial(newTerms);
-                        root = temp;
-                        return;
-                    }
+                    poly = new Polynomial(newTerms);
+                    root = temp;
+                    return;
                 }
             }
         }
@@ -177,6 +192,7 @@ public class Polynomial
         poly = this;
         root = null;
     }
+
     public Polynomial Copy()
     {
         Dictionary<int, Term> temp = new();
@@ -184,7 +200,29 @@ public class Polynomial
             temp[term.Key] = term.Value.Copy();
         return new Polynomial(temp);
     }
-    
+
+    public Term Evaluate(Term point)
+    {
+        Term sum = new Term();
+        foreach (var term in _terms)
+        {
+            sum += (point ^ term.Key) * term.Value;
+        }
+
+        return sum;
+    }
+
+    public Term Evaluate(Fraction fraction)
+    {
+        Term sum = new Term();
+        foreach (var term in _terms)
+        {
+            sum += (fraction ^ term.Key) * term.Value;
+        }
+
+        return sum;
+    }
+
     public override string ToString()
     {
         var query = from term in _terms
@@ -194,14 +232,14 @@ public class Polynomial
         return string.Join(" + ", query);
     }
 
-    
+
     // НЕ ТЕСТИРОВАЛ
-    
+
     public static bool operator ==(Polynomial p1, Polynomial p2)
     {
         if (p1._terms.Count != p2._terms.Count)
             return false;
-        
+
         foreach (var term in p1._terms)
             if (!p2._terms.ContainsKey(term.Key) || p2._terms[term.Key] != term.Value)
                 return false;
@@ -217,7 +255,7 @@ public class Polynomial
     public static bool operator ==(Polynomial p, Fraction x)
     {
         // Надо проверить, могут ли быть члены с нулевыми коэффициентами в полиноме. Т.е. члены вида 0 * x^n
-        if (p._terms.Count != 1)    // Сравнивать с дробью можно только полиномы-константы
+        if (p._terms.Count != 1) // Сравнивать с дробью можно только полиномы-константы
             return false;
         if (!p._terms.ContainsKey(0))
             return false;
@@ -228,4 +266,69 @@ public class Polynomial
     {
         return !(p == x);
     }
+
+    public static Polynomial operator /(Polynomial p, Fraction fraction)
+    {
+        Polynomial copy = p.Copy();
+        foreach (var key in copy._terms.Keys)
+            copy._terms[key] /= fraction;
+
+        return copy;
+    }
+
+    public static Polynomial operator *(Polynomial p, Fraction fraction)
+    {
+        Polynomial copy = p.Copy();
+        foreach (var key in copy._terms.Keys)
+            copy._terms[key] *= fraction;
+
+        return copy;
+    }
+
+    public static Polynomial operator *(Fraction fraction, Polynomial p) => p * fraction;
+
+    public static Polynomial operator *(Polynomial p, int x) => p * new Fraction(x);
+
+    public static Polynomial operator *(int x, Polynomial p) => p * x;
+
+    public static Polynomial operator -(Polynomial p)
+    {
+        Polynomial copy = p.Copy();
+        foreach (var key in copy._terms.Keys)
+            copy._terms[key] = -copy._terms[key];
+        return copy;
+    }
+
+    public static Polynomial operator +(Polynomial p) => p.Copy();
+
+    public static Polynomial operator +(Polynomial p1, Polynomial p2)
+    {
+        Polynomial copy = p1.Copy();
+        foreach (var key in p2._terms.Keys)
+        {
+            if (!copy._terms.ContainsKey(key))
+                copy._terms[key] = new Term();
+            copy._terms[key] += p2._terms[key];
+        }
+
+        return copy;
+    }
+
+    public static Polynomial operator -(Polynomial p1, Polynomial p2) => p1 + (-p2);
+
+    public static Polynomial operator *(Polynomial p1, Polynomial p2)
+    {
+        Polynomial product = new Polynomial();
+        foreach (var x in p1._terms)
+        foreach (var y in p2._terms)
+        {
+            if (!product._terms.ContainsKey(x.Key + y.Key))
+                product._terms[x.Key + y.Key] = new Term();
+            product._terms[x.Key + y.Key] += x.Value * y.Value;
+        }
+
+        return product;
+    }
+
+    public static Polynomial operator /(Polynomial p1, Polynomial p2) => throw new NotImplementedException();
 }

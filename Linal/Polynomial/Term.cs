@@ -12,6 +12,7 @@ public class Term
 
     public Term(Fraction f) => _coefficients[f.Root] = f;
 
+    public Term(Dictionary<long, Fraction> dict) => _coefficients = dict;  // Наверно надо нормально копировать
     public Term(params Fraction[] fractions)
     {
         foreach (Fraction fraction in fractions)
@@ -178,4 +179,55 @@ public class Term
     }
 
     public static Term operator *(long x, Term term) => term * x;
+
+    public static Term operator /(Term term, Fraction fraction)
+    {
+        Term copy = term.Copy();
+        foreach (long key in copy._coefficients.Keys) 
+            copy._coefficients[key] /= fraction;
+
+        return copy;
+    }
+    
+    public static Term operator *(Term term, Fraction fraction)
+    {
+        Term copy = term.Copy();
+        foreach (long key in copy._coefficients.Keys) 
+            copy._coefficients[key] *= fraction;
+
+        return copy;
+    }
+
+    public static Term operator *(Fraction fraction, Term term) => term * fraction;
+
+    public static Term operator *(Term term1, Term term2)
+    {
+        Dictionary<long, Fraction> coefs = new Dictionary<long, Fraction>();
+        foreach (var x in term1._coefficients)
+        {
+            foreach (var y in term2._coefficients)
+            {
+                Fraction fraction = x.Value * y.Value;
+                if (!coefs.ContainsKey(fraction.Root))
+                    coefs[fraction.Root] = 0;
+                coefs[fraction.Root] += fraction;
+            }
+        }
+
+        return new Term(coefs);
+    }
+
+    public static Term operator ^(Term term, int power)
+    {
+        if (power < 0)
+            throw new UnluckyException();
+        
+        if (power == 0)
+            return new Term(1);
+
+        if (power % 2 == 1)
+            return term * (term ^ (power - 1));
+
+        return (term * term) ^ (power / 2);
+    }
 }

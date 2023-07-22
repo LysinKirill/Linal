@@ -205,6 +205,18 @@ public class Vector : Matrix
         return res;
     }
 
+    public Vector Normalize()
+    {
+        Vector copy = Copy();
+        Fraction sum = 0;
+        for (int i = 0; i < copy.Size; ++i)
+            sum += copy[i] * copy[i];
+        Fraction factor = Fraction.Sqrt(sum);
+        for (int i = 0; i < copy.Size; ++i)
+            copy[i] /= factor;
+        return copy;
+    }
+
     public override string ToString()
     {
         var res = string.Join(", ", GetFractionIEnumerable());

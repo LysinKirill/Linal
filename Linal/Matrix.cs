@@ -29,7 +29,7 @@ public class Matrix
         _data = temp._data;
         _maxS = temp._maxS;
     }
-    
+
     /// <summary>
     /// Создает матрицу на основе списка из списков дробей - строк матрицы
     /// </summary>
@@ -37,7 +37,7 @@ public class Matrix
     /// <exception cref="ArgumentException">Исключение, возникающее при передаче в качестве параметра списка, который не соответствует прямоугольной матрице</exception>
     public Matrix(List<List<Fraction>> fractionList)
     {
-        if(!IsValidMatrixRepresentation(fractionList))
+        if (!IsValidMatrixRepresentation(fractionList))
             throw new ArgumentException("The given list does not represent a rectangular matrix.");
         _data = new Fraction[fractionList.Count][];
 
@@ -50,7 +50,7 @@ public class Matrix
             }
         }
     }
-    
+
     /// <summary>
     /// Конструктор без параметров - создает пустую матрицу размера 0 x 0
     /// </summary>
@@ -58,7 +58,7 @@ public class Matrix
     {
         _data = Array.Empty<Fraction[]>();
     }
-    
+
     /// <summary>
     /// Конструктор принимающий размеры матрицы
     /// </summary>
@@ -73,7 +73,7 @@ public class Matrix
         for (int i = 0; i < rows; ++i)
             _data[i] = new Fraction[columns];
     }
-    
+
     /// <summary>
     /// Метод, осуществляющий копирование матрицы
     /// </summary>
@@ -110,7 +110,7 @@ public class Matrix
             tmp.Add(this);
             tmp.Reverse();
         }
-        
+
         var temp = ConcatColumns(tmp.ToArray());
         _data = temp._data;
         _maxS = temp._maxS;
@@ -131,7 +131,7 @@ public class Matrix
             tmp.Add(this);
             tmp.Reverse();
         }
-        
+
         var temp = ConcatRows(tmp.ToArray());
         _data = temp._data;
         _maxS = temp._maxS;
@@ -144,22 +144,23 @@ public class Matrix
         {
             throw new ArgumentException("Invalid row");
         }
-        
+
         return new Vector(_data[id], false);
     }
-    
+
     public Vector GetColumn(int id)
     {
         if (id >= Columns)
         {
             throw new ArgumentException("Invalid row");
         }
-        
+
         var temp = new Fraction[Rows];
         for (int i = 0; i < Rows; i++)
         {
             temp[i] = _data[i][id];
         }
+
         return new Vector(temp);
     }
 
@@ -180,7 +181,7 @@ public class Matrix
 
         return true;
     }
-    
+
     /// <summary>
     /// Проверка матрицы на симметричность
     /// </summary>
@@ -293,9 +294,11 @@ public class Matrix
             }
         }
 
-        return new Matrix(rows);
+        var newMatrix = new Matrix(rows);
+        newMatrix.UpdateMaxS();
+        return newMatrix;
     }
-    
+
     /// <summary>
     /// Составляет новую матрицу путем объединения (конкатенации) переданных матриц по строкам
     /// </summary>
@@ -312,19 +315,22 @@ public class Matrix
             {
                 throw new ArgumentException("Incorrect concat dimensions");
             }
-            
+
             vectors.AddRange(matrix.GetHorizontalVectors().Select(vector => vector._data[0].ToList()));
         }
 
-        return new Matrix(vectors);
+        var newMatrix = new Matrix(vectors);
+        newMatrix.UpdateMaxS();
+        return newMatrix;
     }
-    
+
     public static Matrix ConcatVectors(params Vector[] vectors)
     {
         if (vectors.All(vector => vector.IsVertical))
         {
             return ConcatColumns(vectors);
         }
+
         if (vectors.All(vector => !vector.IsVertical))
         {
             return ConcatRows(vectors);
@@ -425,7 +431,7 @@ public class Matrix
     {
         var tr = new Matrix
         {
-            _data = new Fraction[Columns][]
+            _data = new Fraction[Columns][],
         };
         for (int i = 0; i < tr.Rows; i++)
         {
@@ -434,6 +440,7 @@ public class Matrix
                 tr._data[i][j] = _data[j][i];
         }
 
+        tr._maxS = _maxS;
         return tr;
     }
 
@@ -621,7 +628,7 @@ public class Matrix
                 inverse = m[i - shift, i].Inverse();
                 m.ApplyRow(x => x * inverse, i - shift);
             }
-            
+
             for (int k = i - shift + 1; k < m.Rows; ++k)
             {
                 if (m[k, i] == 0)
@@ -633,6 +640,17 @@ public class Matrix
         }
 
         return m;
+    }
+
+    /// <summary>
+    /// Заполняет матрицу указанным элементом
+    /// </summary>
+    /// <param name="fillValue">Элемент, с помощью которого будет происходить заполнение матрицы</param>
+    public void Fill(Fraction fillValue)
+    {
+        for (int i = 0; i < Rows; ++i)
+        for (int j = 0; j < Columns; ++j)
+            _data[i][j] = fillValue;
     }
 
     /// <summary>
@@ -737,13 +755,11 @@ public class Matrix
         if (i >= Rows || j >= Columns)
             throw new IndexOutOfRangeException("Cannot get such algebraic complement");
         if ((i + j) % 2 == 0)
-        {
             return Minor(i, j).Det();
-        }
 
         return (-1) * Minor(i, j).Det();
     }
-    
+
     /// <summary>
     /// Вычисление дополняющего минора для данной матрицы и заданного элемента
     /// </summary>
@@ -779,7 +795,7 @@ public class Matrix
 
         return new Matrix(f);
     }
-    
+
     /// <summary>
     /// Вычисление определителя данной матрицы
     /// </summary>
@@ -788,7 +804,7 @@ public class Matrix
     public Fraction Det()
     {
         if (!IsSquare())
-            throw new Exception();
+            throw new ArgumentException("Cannot calculate the determinant of a non-square matrix");
 
         switch (Columns)
         {
@@ -825,6 +841,113 @@ public class Matrix
         return sum;
     }
 
+    private class PolynomialMatrix
+    {
+        private Polynomial[][] _matrix;
+        private int Rows => _matrix.Length;
+        private int Columns => _matrix[0].Length;
+        public PolynomialMatrix(Polynomial[][] matrix) => _matrix = matrix;
+
+        public PolynomialMatrix(Matrix matrix) =>
+            _matrix = matrix._data.Select(x => x.Select(y => new Polynomial(y.Copy())).ToArray()).ToArray();
+
+        private bool IsSquare => Rows == Columns;
+
+        public PolynomialMatrix PolyMinor(int i, int j)
+        {
+            if (i >= Rows || j >= Columns)
+                throw new IndexOutOfRangeException("Cannot get such Minor");
+            var f = new Polynomial[Rows - 1][];
+            for (int t = 0; t < Rows - 1; ++t)
+                f[t] = new Polynomial[Columns - 1];
+
+            for (int p = 0; p < Rows; p++)
+            {
+                if (p == i)
+                    continue;
+                var y = p;
+                if (p >= i)
+                    y -= 1;
+                for (int l = 0; l < Columns; l++)
+                {
+                    if (l == j)
+                        continue;
+                    var x = l;
+                    if (l >= j)
+                        x -= 1;
+                    f[y][x] = _matrix[p][l];
+                }
+            }
+
+            return new PolynomialMatrix(f);
+        }
+
+        public Polynomial PolyAdjugate(int i, int j)
+        {
+            if (i >= Rows || j >= Columns)
+                throw new IndexOutOfRangeException("Cannot get such algebraic complement");
+            if ((i + j) % 2 == 0)
+                return PolyMinor(i, j).PolyDet();
+
+            return -PolyMinor(i, j).PolyDet();
+        }
+
+        public Polynomial PolyDet()
+        {
+            if (!IsSquare)
+                throw new ArgumentException("Cannot calculate the determinant of a non-square matrix");
+
+            switch (Columns)
+            {
+                case 1:
+                    return _matrix[0][0];
+                case 2:
+                    return _matrix[0][0] * _matrix[1][1] - _matrix[0][1] * _matrix[1][0];
+            }
+
+            Polynomial sum = new Polynomial();
+            //  разложение по 1-ой строке
+            for (int j = 0; j < Columns; j++)
+            {
+                sum += _matrix[0][j] * PolyAdjugate(0, j);
+            }
+
+            return sum;
+        }
+
+        public Polynomial this[int i, int j]
+        {
+            get => _matrix[i][j];
+            set => _matrix[i][j] = value;
+        }
+    }
+
+    public Polynomial CharacteristicPolynomial()
+    {
+        if (!IsSquare())
+            throw new ArgumentException("Cannot calculate the characteristic polynomial of a non-square matrix");
+        PolynomialMatrix matrix = new PolynomialMatrix(this);
+        Polynomial x = new Polynomial(1, 0);
+        for (int i = 0; i < Columns; ++i)
+            matrix[i, i] -= x;
+        return matrix.PolyDet();
+    }
+
+    public List<Fraction> GetEigenvalues() => CharacteristicPolynomial().GetFactorization();
+
+    public List<(Fraction eigenvalue, Vector eigenvector)> GetEigenvaluesAndEigenvectors()
+    {
+        List<Fraction> eigenvalues = GetEigenvalues();
+        List<(Fraction eigenvalue, Vector eigenvector)> result = new();
+        foreach (Fraction eigenvalue in eigenvalues)
+        {
+            Matrix m = Copy() - E(Columns) * eigenvalue;
+            result.Add((eigenvalue, m.FSR()[0]));
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// Проверка, что матрица квадратная
     /// </summary>
@@ -859,7 +982,12 @@ public class Matrix
     public Fraction this[int i, int j]
     {
         get => _data[i][j];
-        set => _data[i][j] = value;
+        set
+        {
+            if (value.ToString().Length > _maxS)
+                _maxS = value.ToString().Length;
+            _data[i][j] = value;
+        }
     }
 
     public static Matrix operator *(Matrix a, Matrix b)
@@ -926,7 +1054,7 @@ public class Matrix
     }
 
     public static Matrix operator *(Fraction num, Matrix a) => a * num;
-    
+
     public static Matrix operator /(Matrix a, Fraction num) => a * num.Inverse();
 
     public static Matrix operator +(Matrix a, Matrix b)
@@ -947,7 +1075,7 @@ public class Matrix
         c._maxS = c.GetMaxLength();
         return c;
     }
-    
+
     public static Matrix operator -(Matrix matrix) => matrix.Select(fraction => -fraction);
 
     public static Matrix operator -(Matrix a, Matrix b) => a + -b;
@@ -984,7 +1112,7 @@ public class Matrix
 
         _maxS = GetMaxLength();
     }
-    
+
     /// <summary>
     /// Прибавление одной строки матрицы к другой
     /// </summary>
@@ -1100,7 +1228,7 @@ public class Matrix
         a[i][j] = new Fraction(1);
         return new Matrix(a);
     }
-    
+
     /// <summary>
     /// Матрица элементарного преобразования, соответствующая замене строк местами
     /// </summary>
@@ -1130,10 +1258,12 @@ public class Matrix
     public static Matrix EMultRow(int n, int i, Fraction f)
     {
         var m = E(n);
-        m._data[i][i] = f == 0 ? throw new ArgumentException("Multiplying a row by 0 is not an elementary row operation") : f;
+        m._data[i][i] = f == 0
+            ? throw new ArgumentException("Multiplying a row by 0 is not an elementary row operation")
+            : f;
         return m;
     }
-    
+
     /// <summary>
     /// Матрица элементарного преобразования, соответствующая прибавлению строки, умноженной на константу к другой строке 
     /// </summary>
@@ -1148,7 +1278,7 @@ public class Matrix
         m._data[i][j] = f;
         return m;
     }
-    
+
     /// <summary>
     /// Создает случайную матрицу заданного размера, где элементы являются целыми числами, лежащими в заданном диапазоне
     /// </summary>
@@ -1172,7 +1302,7 @@ public class Matrix
 
         return new Matrix(arr);
     }
-    
+
     /// <summary>
     /// Метод, осуществляющий выбор столбцов матрицы по индексу
     /// </summary>
@@ -1185,7 +1315,7 @@ public class Matrix
 
         for (int i = 0; i < Rows; ++i)
         {
-            rows.Add( new List<Fraction>());
+            rows.Add(new List<Fraction>());
             for (int j = 0; j < Columns; ++j)
             {
                 if (f(j))
@@ -1195,7 +1325,7 @@ public class Matrix
 
         return new Matrix(rows);
     }
-    
+
     /// <summary>
     /// Создает случайную матрицу заданного размера, где элементы являются дробями, лежащими в заданном диапазоне, знаменатель которых не превосходит заданного числа (он является натуральным числом)
     /// </summary>
@@ -1231,11 +1361,16 @@ public class Matrix
     private bool IsValidMatrixRepresentation(Fraction[][] f)
     {
         int firstRowLength = f[0].Length;
-        for(int i = 1; i < f.Length; ++i)
+        for (int i = 1; i < f.Length; ++i)
             if (f[i].Length != firstRowLength)
                 return false;
         return true;
     }
+
+    /// <summary>
+    /// Обновляет максимальную длину стркового представления матрицы
+    /// </summary>
+    private void UpdateMaxS() => _maxS = GetMaxLength();
 
     /// <summary>
     /// Метод, находящий ФСР ОСЛАУ, заданной данной матрицей, т.е. системы A*X = 0
@@ -1246,30 +1381,31 @@ public class Matrix
         List<Vector> fsr = new();
         Matrix m = Canonical();
         HashSet<int> leading = new HashSet<int>();
-        for(int i = 0; i < m.Rows; ++i)
-            for(int j = 0; j < m.Columns; ++j)
-                if (m[i, j] == 1)
-                {
-                    leading.Add(j);
-                    break;
-                }
+        for (int i = 0; i < m.Rows; ++i)
+        for (int j = 0; j < m.Columns; ++j)
+            if (m[i, j] == 1)
+            {
+                leading.Add(j);
+                break;
+            }
 
         for (int j = 0; j < m.Columns; ++j)
         {
-            if(leading.Contains(j))
+            if (leading.Contains(j))
                 continue;
             Vector vec = new Vector(m.Columns, 0);
             for (int i = 0; i < m.Rows; ++i)
             {
                 vec[i] = -m[i, j];
             }
+
             vec[j] = 1;
             fsr.Add(vec);
         }
 
         return fsr;
     }
-    
+
     /// <summary>
     /// Проверка на то, является ли список из списков дробей корректным представлением прямоугольной матрицы
     /// </summary>
@@ -1278,12 +1414,12 @@ public class Matrix
     private bool IsValidMatrixRepresentation(List<List<Fraction>> f)
     {
         int firstRowLength = f[0].Count;
-        for(int i = 1; i < f.Count; ++i)
+        for (int i = 1; i < f.Count; ++i)
             if (f[i].Count != firstRowLength)
                 return false;
         return true;
     }
-    
+
     //  Decompositions
 
     /// <summary>
@@ -1310,6 +1446,7 @@ public class Matrix
             {
                 Console.WriteLine($"q{i} = {inverse} * {Q.GetColumn(i)} = {inverse * Q.GetColumn(i)}");
             }
+
             Q.ApplyColumn(x => x * inverse, i);
         }
 
@@ -1322,6 +1459,99 @@ public class Matrix
             Console.WriteLine("R:");
             Console.WriteLine(R);
         }
+
         return (Q, R);
+    }
+
+    public (Matrix U, Matrix V, Matrix U_T) SpectralDecomposition()
+    {
+        if (!IsSquare())
+            throw new ArgumentException("Cannot perform spectral decomposition on a non-square matrix");
+        // Нужно проверить матрицу на диагонализуемость!!!
+        var eigen = GetEigenvaluesAndEigenvectors();
+        if (eigen.Count != Columns)
+            throw new UnluckyException("Количество найденных собственных значений не совпадает с размером матрицы");
+
+        Vector[] eigenvectors = new Vector[Columns];
+        Matrix V = new Matrix(Columns, Columns);
+        V.Fill(0);
+        for (int i = 0; i < Columns; ++i)
+        {
+            V[i, i] = eigen[i].eigenvalue;
+            eigenvectors[i] = eigen[i].eigenvector.Normalize();
+        }
+
+        Matrix U = ConcatVectors(eigenvectors);
+        return (U, V, U.Transpose());
+    }
+
+    public (Matrix V, Matrix D, Matrix U_T) SingularDecomposition(bool print = false)
+    {
+        // Если матрица вертикальная (Columns > Rows), то чет ломается, ну либо мне просто не повезло, надо допилить хотя бы костыль
+        int n = Rows;
+        Matrix B = this * Transpose();
+        var eigen = B.GetEigenvaluesAndEigenvectors().OrderByDescending(x => x.eigenvalue.GetDouble()).ToList();
+        Matrix V = ConcatVectors(eigen.Select(x => x.eigenvector.Normalize()).ToArray());
+        Matrix D = new Matrix(Rows, Columns);
+        D.Fill(0);
+
+        if (print)
+        {
+            Console.WriteLine($"B = A * A^T = \n{B}");
+            Console.WriteLine("Характеристический многочлен B:\n" +
+                              $"f(t) = {B.CharacteristicPolynomial()}".Replace('x', 't'));
+            foreach (var pair in eigen)
+            {
+                Console.WriteLine($"\nс.з. t = {pair.eigenvalue}");
+                Matrix aux = B - E(B.Columns) * pair.eigenvalue;
+                Console.WriteLine(aux);
+                Console.WriteLine(aux.Canonical());
+                Console.WriteLine($"с.в. для t = {pair.eigenvalue}: {pair.eigenvector}");
+                Console.WriteLine($"нормированный с.в. для t = {pair.eigenvalue}: {pair.eigenvector.Normalize()}");
+            }
+
+            Console.WriteLine($"V = \n{V}");
+        }
+
+
+        for (int i = 0; i < eigen.Count; ++i)
+        {
+            if (print)
+                Console.WriteLine($"sigma_{i + 1} = {Fraction.Sqrt(eigen[i].eigenvalue)}");
+            D[i, i] = Fraction.Sqrt(eigen[i].eigenvalue);
+        }
+
+        List<Vector> U_vectors = new();
+        for (int i = 0; i < eigen.Count; ++i)
+        {
+            U_vectors.Add(new Vector(Transpose() * V.GetColumn(i) / D[i, i]));
+            if(print)
+                Console.WriteLine($"u{i + 1} = A^T * (v{i + 1}/sigma_{i + 1}) = {U_vectors[i]}");
+        }
+
+        for (int i = eigen.Count; i < Columns; ++i)
+        {
+            Matrix aux = ConcatVectors(U_vectors.ToArray()).Transpose();
+            U_vectors.Add(aux.FSR()[0].Normalize());
+            if (print)
+            {
+                Console.WriteLine(aux.Canonical());
+                Console.WriteLine($"u{i + 1} = {U_vectors[i]}");
+            }
+        }
+
+        Matrix U = ConcatVectors(U_vectors.ToArray());
+        if (print)
+        {
+            Console.WriteLine("\nRESULT:");
+            Console.WriteLine($"V = \n{V}");
+            Console.WriteLine($"D = \n{D}");
+            Console.WriteLine($"U^T = \n{U.Transpose()}");
+            Console.WriteLine($"\n_____________________________________\n" +
+                              $"V * D * U^T = \n{V * D * U.Transpose()}");
+        }
+
+        return (V, D, U.Transpose());
+
     }
 }

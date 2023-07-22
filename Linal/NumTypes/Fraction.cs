@@ -123,6 +123,15 @@ public class Fraction : INum
     public static Fraction Abs(Fraction fraction) =>
         new(Math.Abs(fraction.Numerator), fraction.Denominator, fraction.Root);
 
+    public static Fraction Sqrt(Fraction fraction)
+    {
+        if (fraction.IsNegative)
+            throw new ArgumentException("Cannot calculate the square root of negative number");
+        if (fraction.Root != 0 && fraction.Root != 1)
+            throw new RazrabDaunException("Square root of irrational numbers is not yet implemented");
+        return new Fraction(1, fraction.Denominator, fraction.Numerator * fraction.Denominator);
+    }
+    
     public static Fraction Parse(String s)
     {
         s = s.Replace(" ", "").Replace("*", "").ToLower();
@@ -258,9 +267,27 @@ public class Fraction : INum
 
     public static Fraction operator /(Fraction a, Fraction b)
     {
-        Fraction f = new Fraction(a.Numerator * b.Denominator, a.Denominator * b.Numerator);
+        Fraction f = new Fraction(a.Numerator * b.Denominator, a.Denominator * b.Numerator, a.Root);
+        f.Root *= b.Root;
+        f.Denominator *= b.Root;
         f.Simplify();
         return f;
+    }
+
+    public static Fraction operator ^(Fraction f, int power)
+    {
+        if (f == 0)
+            return power <= 0 ? throw new ArgumentException("Cannot raise zero to non-positive power") : 0;
+        if (power == 0)
+            return 1;
+
+        if (power < 0)
+            return (f ^ Math.Abs(power)).Inverse();
+
+        if (power % 2 == 1)
+            return f * (f ^ (power - 1));
+
+        return (f * f) ^ (power / 2);
     }
 
     public static void SetEqualityPrecision(double eps)
