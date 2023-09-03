@@ -600,14 +600,25 @@ public class Matrix
     /// <param name="column">Индекс столбца, к которому применяется отображение</param>
     public void ApplyColumn(Func<Fraction, Fraction> func, int column) => ApplyColumns(func, column);
 
+
     /// <summary>
     /// Приводит матрицу к ступенчатому виду
     /// </summary>
     /// <returns>Новая матрица в ступенчатом виде</returns>
     public Matrix Reduce()
     {
-        var m = Copy();
+        return ReduceAndGetCoefficientsProduct(out _);
+    }
 
+    /// <summary>
+    /// Приводит матрицу к ступенчатому виду и считает произведение коэффициентов, на которые домножались строки
+    /// </summary>
+    /// <param name="coefficientsProduct">Произведение коэффициентов, на которые домножались строки</param>
+    /// <returns></returns>
+    public Matrix ReduceAndGetCoefficientsProduct(out Fraction coefficientsProduct)
+    {
+        coefficientsProduct = 1;
+        var m = Copy();
 
         var shift = 0;
         for (int i = 0; i < m.Rows && i < Columns; ++i)
@@ -625,8 +636,11 @@ public class Matrix
                 }
 
                 m.SwapRows(i - shift, aux);
+                if (i - shift != aux)
+                    coefficientsProduct *= (-1);
                 inverse = m[i - shift, i].Inverse();
                 m.ApplyRow(x => x * inverse, i - shift);
+                coefficientsProduct *= inverse;
             }
 
             for (int k = i - shift + 1; k < m.Rows; ++k)
@@ -636,6 +650,7 @@ public class Matrix
                 inverse = m[k, i].Inverse();
                 m.ApplyRow(x => x * inverse, k);
                 m.AddToRow(k, i - shift, new Fraction(-1));
+                coefficientsProduct *= inverse;
             }
         }
 
@@ -731,7 +746,8 @@ public class Matrix
     }
 
     /// <summary>
-    /// Вычисляет матрицу, обратную к данной
+    /// Вычисляет матрицу, обратную к данной с помощью определителя и союзной матрицы <br />
+    /// Асимптотика по времени - O(2^n)
     /// </summary>
     /// <returns>Новая матрица - A^(-1)</returns>
     /// <exception cref="ArgumentException">Исключение, возникающее при попытке вычислить обратную матрицу для вырожденной матрицы</exception>
@@ -741,6 +757,27 @@ public class Matrix
         if (det == 0)
             throw new ArgumentException("The matrix is degenerate, thus it has no inverse");
         return (1 / det) * Adj();
+    }
+
+    /// <summary>
+    /// Вычисляет матрицу, обратную к данной с помощью метода Гаусса <br />
+    /// Если в матрице содержатся числа больше 5-7 по модулю или порядок матрицы больше 3-5, то вероятны ошибки из-за переполнения
+    /// при приведении к каноническому виду <br />
+    /// Существенно превосходит по производительности метод Det() <br />
+    /// Асимптотика по времени - O(n^3)
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public Matrix InverseRowReduction()
+    {
+        if (!IsSquare())
+            throw new ArgumentException("Cannot calculate the inverse of a non-square matrix");
+        Matrix m = ConcatColumns(Copy(), E(Columns));
+        m = m.Canonical();
+        for (int i = 0; i < Columns; ++i)
+            if (m[i, i] != 1)
+                throw new ArgumentException("The matrix is degenerate, thus it has no inverse");
+        return m.TakeColumns(column => column >= Columns);
     }
 
     /// <summary>
@@ -797,7 +834,7 @@ public class Matrix
     }
 
     /// <summary>
-    /// Вычисление определителя данной матрицы
+    /// Вычисление определителя данной матрицы (рекурсивно O(2^n))
     /// </summary>
     /// <returns>Рациональное число - определитель данной матрицы</returns>
     /// <exception cref="Exception">Исключение, возникающее при попытке вычисления определителя для неквадратной матрицы</exception>
@@ -817,11 +854,25 @@ public class Matrix
         var sum = new Fraction();
         //  разложение по 1-ой строке
         for (int j = 0; j < Columns; j++)
-        {
             sum += _data[0][j] * A(0, j); // need to check this
-        }
 
         return sum;
+    }
+
+    /// <summary>
+    /// Более быстрый метод вычисления определителя (по сравнению с Det()) с помощью метода Гаусса O(n^3) <br/>
+    /// Если матрица содержит большие коэффициенты, то дает неправильный ответ (предположительно из-за переполнения) <br/>
+    /// На практике смог получить преимущество по скорости лишь при порядке матрицы > 4 <br/>
+    /// [НЕ РЕКОМЕНДУЕТСЯ К ИСПОЛЬЗОВАНИЮ]
+    /// </summary>
+    /// <returns>Определитель данной матрицы</returns>
+    public Fraction DetGauss()
+    {
+        Matrix reducedForm = ReduceAndGetCoefficientsProduct(out var product);
+        product = product.Inverse();
+        for (int i = 0; i < reducedForm.Columns; ++i)
+            product *= reducedForm[i, i];
+        return product;
     }
 
     /// <summary>
@@ -1525,7 +1576,7 @@ public class Matrix
         for (int i = 0; i < eigen.Count; ++i)
         {
             U_vectors.Add(new Vector(Transpose() * V.GetColumn(i) / D[i, i]));
-            if(print)
+            if (print)
                 Console.WriteLine($"u{i + 1} = A^T * (v{i + 1}/sigma_{i + 1}) = {U_vectors[i]}");
         }
 
@@ -1552,6 +1603,5 @@ public class Matrix
         }
 
         return (V, D, U.Transpose());
-
     }
 }

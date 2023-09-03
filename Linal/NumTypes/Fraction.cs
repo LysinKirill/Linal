@@ -249,6 +249,7 @@ public class Fraction : INum
     public static Fraction operator +(Fraction b, int a) => (a + b);
     public static Fraction operator *(Fraction b, int a) => (a * b);
     public static Fraction operator -(Fraction f) => f * (-1);
+    public static Fraction operator +(Fraction f) => new(f.Numerator, f.Denominator, f.Root);
 
 
     public static Fraction operator /(Fraction a, int b)

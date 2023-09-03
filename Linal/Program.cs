@@ -1,4 +1,5 @@
-﻿using System.Threading.Channels;
+﻿using System.Diagnostics;
+using System.Threading.Channels;
 
 namespace Linal;
 
@@ -348,7 +349,16 @@ class Program
         // Console.WriteLine(p2);
         // Console.WriteLine(p1 * p2);
 
-        Task10(data["Kirill"].task10);
+        // Task10(data["Kirill"].task10);
+        
+        Polynomial polynomial = new Polynomial(new Fraction(4, 7), new(10252, 1197), new(5816, 513), new(-173464, 3591),
+            new(-52100, 1197), new(22100, 399));
+        
+        Polynomial p1 = new Polynomial(new Fraction(104), new(-1783, 3), new(244), new(148453, 48), new(-202955, 48),
+            new(20137, 16), new(5915, 48));
+        
+        p1.GetFactorization(true);
+        Console.WriteLine(p1.Evaluate(new Term(4, 5)));
     }
 
     static void Task1((List<Vector> v1, List<Vector> v2) v)
@@ -448,7 +458,7 @@ class Program
             Console.WriteLine("Проблема: произведение данных трех матриц должно было совпасть с матрицей A");
         Console.WriteLine("Возводим A в виде произведения трех матриц в степень m, при этом появляются степени m только у чисел, стоящих на диагонали матрицы V,\n" +
                           "остальные матрицы не меняются. После этого устремляем m к бесконечности, при этом в матрице V обнуляются все элементы кроме 1^m");
-        sus.Apply(x => 0, sus.Filter(x => x != 1));
+        sus.Apply(_ => 0, sus.Filter(x => x != 1));
         Console.WriteLine($"V\' = \n{sus}");
         Console.WriteLine($"(x0, y0, z0)^T = ({x0}, {y0}, {z0})^T");
         Matrix B = C * sus * C.Inverse();
